@@ -10,7 +10,7 @@ RShiny App for browsing the MorPhiC gene list, meta-data and data visualisations
 - Intolerance to Variation/Gene constraint metrics
   - [DepMap](https://depmap.org/portal/)
   - [H1-iCas9 Genetic Screen on MEFs and Laminin](https://www.sciencedirect.com/science/article/pii/S2211124719302128)
-  - [gnomAD gnomAD loss-of-function observed/expected]()
+  - [gnomAD loss-of-function observed/expected]()
   - [Selection against heterozygous Loss of Function (rgcme)](https://pubmed.ncbi.nlm.nih.gov/37214792/)
   - [Selection against heterozygous Loss of Function (posterior)](https://www.biorxiv.org/content/10.1101/2023.05.19.541520v1)
 - [Online Mendelian Inheritance in Man (OMIM)](https://www.omim.org/)
