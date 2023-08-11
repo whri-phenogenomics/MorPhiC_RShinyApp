@@ -10,9 +10,9 @@ library(ggplot2)
 # LOAD TABLES
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-app_data_table <- readRDS("./rda_data/app_data_table.rda")
+app_data_table <- readRDS("../../data/app_data_table.rda")
 #colnames(app_data_table) <- gsub("_", " ", colnames(app_data_table))
-data_info_tables <- readRDS("./rda_data/data_info_tables.rda")
+data_info_tables <- readRDS("../../data/data_info_tables.rda")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -334,9 +334,9 @@ body <- dashboardBody(
                      ),
                      sliderInput("bins", label = h4("Specified Bin Size"),
                                  min = 0.01, max = 0.1, value = 0.05, step = 0.01
-                                 ),
+                     ),
                      checkboxInput(inputId = "compare_protein_coding_genes_gene_constraint", label = "Compare to all protein coding genes")
-                    )
+                   )
                  )
         )
       )
@@ -366,7 +366,7 @@ server <- function(input, output) {
   # Reactive expression to filter data based on gene_search input
   filtered_data <- reactive({
     search_term <- toupper(toupper(input$gene_search))
-    #data_subset <- github_plus_pilarsnew4_plus_mine_nodups
+    #data_subset <- app_data_table
     data_subset <- app_data_table
 
     # Check if the search term is empty or NULL
@@ -491,7 +491,7 @@ server <- function(input, output) {
   # Function to check if the gene exists in the dataframe
   gene_exists <- function(gene_search, input_type) {
     if (!is.null(input_type)) {
-      gene_data <- github_plus_pilarsnew4_plus_mine_nodups
+      gene_data <- app_data_table
       return(toupper(toupper(input$gene_search)) %in% gene_data[[input_type]])
     }
     return(FALSE)
@@ -523,15 +523,15 @@ server <- function(input, output) {
     if (validGene()) {
       renderValueBox({
         input_type <- detect_input_type(toupper(input$gene_search))
-            select_row <- github_plus_pilarsnew4_plus_mine_nodups[
-              github_plus_pilarsnew4_plus_mine_nodups[[input_type]] == toupper(input$gene_search), ]
-            valueBox(
-              "IMPC viability",
-              select_row$viability_impc,
-              icon = icon("plus-minus"),
-              color = "blue",
-              width = 6
-            )
+        select_row <- app_data_table[
+          app_data_table[[input_type]] == toupper(input$gene_search), ]
+        valueBox(
+          "IMPC viability",
+          select_row$viability_impc,
+          icon = icon("plus-minus"),
+          color = "blue",
+          width = 6
+        )
       })
     }
   })
@@ -540,8 +540,8 @@ server <- function(input, output) {
     if (validGene()) {
       renderValueBox({
         input_type <- detect_input_type(toupper(input$gene_search))
-        select_row <- github_plus_pilarsnew4_plus_mine_nodups[
-          github_plus_pilarsnew4_plus_mine_nodups[[input_type]] == toupper(input$gene_search), ]
+        select_row <- app_data_table[
+          app_data_table[[input_type]] == toupper(input$gene_search), ]
         valueBox(
           "Cellular essential (DepMap 0.05)",
           select_row$depmap_essential_05_label,
@@ -559,22 +559,22 @@ server <- function(input, output) {
     if (validGene()) {
       renderValueBox({
         input_type <- detect_input_type(toupper(input$gene_search))
-            select_row <- github_plus_pilarsnew4_plus_mine_nodups[
-              github_plus_pilarsnew4_plus_mine_nodups[[input_type]] == toupper(input$gene_search), ]
-            select_row_centers <- select_row[, c("JAX", "NWU", "MSK", "UCSF")]
-            gene_list_result <- list()
-            for (i in seq_along(1:4)) {
-              if (select_row_centers[, i] != "-") {
-                gene_list_result <- append(gene_list_result, colnames(select_row_centers[i]))
-              }
-            }
-            valueBox(
-              "Centers with gene",
-              gene_list_result,
-              icon = icon("vials"),
-              color = "blue",
-              width = 6
-            )
+        select_row <- app_data_table[
+          app_data_table[[input_type]] == toupper(input$gene_search), ]
+        select_row_centers <- select_row[, c("JAX", "NWU", "MSK", "UCSF")]
+        gene_list_result <- list()
+        for (i in seq_along(1:4)) {
+          if (select_row_centers[, i] != "-") {
+            gene_list_result <- append(gene_list_result, colnames(select_row_centers[i]))
+          }
+        }
+        valueBox(
+          "Centers with gene",
+          gene_list_result,
+          icon = icon("vials"),
+          color = "blue",
+          width = 6
+        )
       })
     }
   })
@@ -584,15 +584,15 @@ server <- function(input, output) {
     if (validGene()) {
       renderValueBox({
         input_type <- detect_input_type(toupper(input$gene_search))
-            select_row <- github_plus_pilarsnew4_plus_mine_nodups[
-              github_plus_pilarsnew4_plus_mine_nodups[[input_type]] == toupper(input$gene_search), ]
-            valueBox(
-              "Clinical phenotype",
-              select_row$omim_phenotype_molecular_basis_known,
-              icon = icon("hand-dots"),
-              color = "blue",
-              width = 6
-            )
+        select_row <- app_data_table[
+          app_data_table[[input_type]] == toupper(input$gene_search), ]
+        valueBox(
+          "Clinical phenotype",
+          select_row$omim_phenotype_molecular_basis_known,
+          icon = icon("hand-dots"),
+          color = "blue",
+          width = 6
+        )
       })
     }
   })
@@ -601,8 +601,8 @@ server <- function(input, output) {
     if (validGene()) {
       renderValueBox({
         input_type <- detect_input_type(toupper(input$gene_search))
-        select_row <- github_plus_pilarsnew4_plus_mine_nodups[
-          github_plus_pilarsnew4_plus_mine_nodups[[input_type]] == toupper(input$gene_search), ]
+        select_row <- app_data_table[
+          app_data_table[[input_type]] == toupper(input$gene_search), ]
         valueBox(
           "OMIM gene lethality",
           select_row$omim_gene_lethality,
@@ -618,8 +618,8 @@ server <- function(input, output) {
     if (validGene()) {
       renderValueBox({
         input_type <- detect_input_type(toupper(input$gene_search))
-        select_row <- github_plus_pilarsnew4_plus_mine_nodups[
-          github_plus_pilarsnew4_plus_mine_nodups[[input_type]] == toupper(input$gene_search), ]
+        select_row <- app_data_table[
+          app_data_table[[input_type]] == toupper(input$gene_search), ]
 
         metrics <- list()
         shet_rgcme_mean <- as.numeric(select_row$shet_rgcme_mean)
@@ -646,7 +646,7 @@ server <- function(input, output) {
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   # UPSET
-  gene_upset_plot <- readRDS("./rda_data/gene_upset_plot.rda")
+  gene_upset_plot <- readRDS("../../data/gene_upset_plot.rda")
   output$upsetplot <- renderPlot(gene_upset_plot)
 
   # VIABILITY
@@ -655,26 +655,26 @@ server <- function(input, output) {
     center <- input$center_viability
     if (center == "jax") {
       # Load JAX viability plot object (jax_plot_via_all.rda)
-      jax_plot <- readRDS("./rda_data/jax_plot_via_all.rda")
+      jax_plot <- readRDS("../../data/jax_plot_via_all.rda")
       jax_plot
       # Return the plot object
     } else if (center == "msk") {
       # Load MSK viability plot object (msk_plot_via_all.rda)
-      msk_plot <- readRDS("./rda_data/msk_plot_via_all.rda")
+      msk_plot <- readRDS("../../data/msk_plot_via_all.rda")
       # Replace with code to customize the MSK viability plot
       msk_plot  # Return the plot object
     } else if (center == "nwu") {
       # Load NWU viability plot object (nwu_plot_via_all.rda)
-      nwu_plot <- readRDS("./rda_data/nwu_plot_via_all.rda")
+      nwu_plot <- readRDS("../../data/nwu_plot_via_all.rda")
       # Replace with code to customize the NWU viability plot
       nwu_plot  # Return the plot object
     } else if (center == "all morphic") {
-      all_plot <- readRDS("./rda_data/all_morphic_plot_via_all.rda")
+      all_plot <- readRDS("../../data/all_morphic_plot_via_all.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
     } else {
       # Load UCSF viability plot object (ucsf_plot_via_all.rda)
-      ucsf_plot <- readRDS("./rda_data/ucsf_plot_via_all.rda")
+      ucsf_plot <- readRDS("../../data/ucsf_plot_via_all.rda")
       # Replace with code to customize the UCSF viability plot
       ucsf_plot  # Return the plot object
     }
@@ -685,26 +685,26 @@ server <- function(input, output) {
     center <- input$center_cell_essentiality_barchart
     if (center == "jax") {
       # Load JAX cellular essentiality plot object (jax_plot_cells_all.rda)
-      jax_plot <- readRDS("./rda_data/jax_plot_cells_all.rda")
+      jax_plot <- readRDS("../../data/jax_plot_cells_all.rda")
       # Replace with code to customize the JAX cellular essentiality plot
       jax_plot  # Return the plot object
     } else if (center == "msk") {
       # Load MSK cellular essentiality plot object (msk_plot_cells_all.rda)
-      msk_plot <- readRDS("./rda_data/msk_plot_cells_all.rda")
+      msk_plot <- readRDS("../../data/msk_plot_cells_all.rda")
       # Replace with code to customize the MSK cellular essentiality plot
       msk_plot  # Return the plot object
     } else if (center == "nwu") {
       # Load NWU cellular essentiality plot object (nwu_plot_cells_all.rda)
-      nwu_plot <- readRDS("./rda_data/nwu_plot_cells_all.rda")
+      nwu_plot <- readRDS("../../data/nwu_plot_cells_all.rda")
       # Replace with code to customize the NWU cellular essentiality plot
       nwu_plot  # Return the plot object
     } else if (center == "all morphic") {
-      all_plot <- readRDS("./rda_data/all_morphic_plot_cells_all.rda")
+      all_plot <- readRDS("../../data/all_morphic_plot_cells_all.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
     } else {
       # Load UCSF cellular essentiality plot object (ucsf_plot_cells_all.rda)
-      ucsf_plot <- readRDS("./rda_data/ucsf_plot_cells_all.rda")
+      ucsf_plot <- readRDS("../../data/ucsf_plot_cells_all.rda")
       # Replace with code to customize the UCSF cellular essentiality plot
       ucsf_plot  # Return the plot object
     }
@@ -715,26 +715,26 @@ server <- function(input, output) {
     center <- input$center_omim
     if (center == "jax") {
       # Load JAX OMIM plot object (jax_plot_omim_all_jax.rda)
-      jax_plot <- readRDS("./rda_data/jax_plot_omim_all.rda")
+      jax_plot <- readRDS("../../data/jax_plot_omim_all.rda")
       # Replace with code to customize the JAX OMIM plot
       jax_plot  # Return the plot object
     } else if (center == "msk") {
       # Load MSK OMIM plot object (msk_plot_omim_all_msk.rda)
-      msk_plot <- readRDS("./rda_data/msk_plot_omim_all.rda")
+      msk_plot <- readRDS("../../data/msk_plot_omim_all.rda")
       # Replace with code to customize the MSK OMIM plot
       msk_plot  # Return the plot object
     } else if (center == "nwu") {
       # Load NWU OMIM plot object (nwu_plot_omim_all_nwu.rda)
-      nwu_plot <- readRDS("./rda_data/nwu_plot_omim_all.rda")
+      nwu_plot <- readRDS("../../data/nwu_plot_omim_all.rda")
       # Replace with code to customize the NWU OMIM plot
       nwu_plot  # Return the plot object
     } else if (center == "all morphic") {
-      all_plot <- readRDS("./rda_data/all_morphic_plot_omim_all.rda")
+      all_plot <- readRDS("../../data/all_morphic_plot_omim_all.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
     } else {
       # Load UCSF OMIM plot object (ucsf_plot_omim_all_ucsf.rda)
-      ucsf_plot <- readRDS("./rda_data/ucsf_plot_omim_all.rda")
+      ucsf_plot <- readRDS("../../data/ucsf_plot_omim_all.rda")
       # Replace with code to customize the UCSF OMIM plot
       ucsf_plot  # Return the plot object
     }
@@ -745,26 +745,26 @@ server <- function(input, output) {
     center <- input$center_panther
     if (center == "jax") {
       # Load JAX Panther plot object (jax_plot_panther_all.rda)
-      jax_plot <- readRDS("./rda_data/jax_plot_panther_all.rda")
+      jax_plot <- readRDS("../../data/jax_plot_panther_all.rda")
       # Replace with code to customize the JAX Panther plot
       jax_plot  # Return the plot object
     } else if (center == "msk") {
       # Load MSK Panther plot object (msk_plot_panther_all.rda)
-      msk_plot <- readRDS("./rda_data/msk_plot_panther_all.rda")
+      msk_plot <- readRDS("../../data/msk_plot_panther_all.rda")
       # Replace with code to customize the MSK Panther plot
       msk_plot  # Return the plot object
     } else if (center == "nwu") {
       # Load NWU Panther plot object (nwu_plot_panther_all.rda)
-      nwu_plot <- readRDS("./rda_data/nwu_plot_panther_all.rda")
+      nwu_plot <- readRDS("../../data/nwu_plot_panther_all.rda")
       # Replace with code to customize the NWU Panther plot
       nwu_plot  # Return the plot object
     } else if (center == "all morphic") {
-      all_plot <- readRDS("./rda_data/all_morphic_plot_panther_all.rda")
+      all_plot <- readRDS("../../data/all_morphic_plot_panther_all.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
     } else {
       # Load UCSF Panther plot object (ucsf_plot_panther_all.rda)
-      ucsf_plot <- readRDS("./rda_data/ucsf_plot_panther_all.rda")
+      ucsf_plot <- readRDS("../../data/ucsf_plot_panther_all.rda")
       # Replace with code to customize the UCSF Panther plot
       ucsf_plot  # Return the plot object
     }
@@ -774,20 +774,20 @@ server <- function(input, output) {
   output$go_scatter <- renderPlotly({
     center <- input$center_go
     if (center == "jax") {
-      jax_plot <- readRDS("./rda_data/go_scatter_plots.rda")
+      jax_plot <- readRDS("../../data/go_scatter_plots.rda")
       jax_plot[[1]]  # Return the plot object
     } else if (center == "nwu") {
-      nwu_plot <- readRDS("./rda_data/go_scatter_plots.rda")
+      nwu_plot <- readRDS("../../data/go_scatter_plots.rda")
       nwu_plot[[2]]  # Return the plot object
     } else if (center == "msk") {
-      msk_plot <- readRDS("./rda_data/go_scatter_plots.rda")
+      msk_plot <- readRDS("../../data/go_scatter_plots.rda")
       msk_plot[[3]]  # Return the plot object
     } else if (center == "all morphic") {
-      all_plot <- readRDS("./rda_data/all_morphic_go_scatter_plot.rda")
+      all_plot <- readRDS("../../data/all_morphic_go_scatter_plot.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
     } else {
-      ucsf_plot <- readRDS("./rda_data/go_scatter_plots.rda")
+      ucsf_plot <- readRDS("../../data/go_scatter_plots.rda")
       ucsf_plot[[4]]  # Return the plot object
     }
   })
@@ -797,20 +797,20 @@ server <- function(input, output) {
   output$reactome_emapplot <- renderPlot({
     center <- input$center_reactome
     if (center == "jax") {
-      jax_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
+      jax_plot <- readRDS("../../data/reactome_emmaplots.rda")
       jax_plot[[1]]  # Return the plot object
     } else if (center == "nwu") {
-      nwu_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
+      nwu_plot <- readRDS("../../data/reactome_emmaplots.rda")
       nwu_plot[[2]]  # Return the plot object
     } else if (center == "msk") {
-      msk_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
+      msk_plot <- readRDS("../../data/reactome_emmaplots.rda")
       msk_plot[[3]]  # Return the plot object
     } else if (center == "all morphic") {
-      all_plot <- readRDS("./rda_data/all_morphic_reactome_emmaplot.rda")
+      all_plot <- readRDS("../../data/all_morphic_reactome_emmaplot.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
     } else {
-      ucsf_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
+      ucsf_plot <- readRDS("../../data/reactome_emmaplots.rda")
       ucsf_plot[[4]]  # Return the plot object
     }
   })
@@ -824,7 +824,7 @@ server <- function(input, output) {
   output$cell_essentiality_boxplot_depmap <- renderPlotly({
 
     # Load cell_essentiality RDS dataframe
-    cell_essentiality <- readRDS("./rda_data/cell_essentiality.rda")
+    cell_essentiality <- readRDS("../../data/cell_essentiality.rda")
 
     # Load hgnc ID input
     user_input_hgnc_id <- input$search_hgnc_id
@@ -848,7 +848,7 @@ server <- function(input, output) {
 
     # MODIFY PLOT TEXT TO REFLECT THRESHOLD SET i.e. label will be like: essential (<0.01)
     if (center == "jax") {
-      cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
+      cell_essentiality_jax <- readRDS("../../data/cell_essentiality_jax.rda")
 
       sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
       if (sig_threshod_depmap_boxplot == "0.05") {
@@ -867,7 +867,7 @@ server <- function(input, output) {
       cell_essentiality_centre_selected <- cell_essentiality_jax
 
     } else if (center == "nwu") {
-      cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
+      cell_essentiality_nwu <- readRDS("../../data/cell_essentiality_nwu.rda")
 
       sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
       if (sig_threshod_depmap_boxplot == "0.05") {
@@ -885,7 +885,7 @@ server <- function(input, output) {
       cell_essentiality_centre_selected <- cell_essentiality_nwu
 
     } else if (center == "msk") {
-      cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
+      cell_essentiality_msk <- readRDS("../../data/cell_essentiality_msk.rda")
 
       sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
       if (sig_threshod_depmap_boxplot == "0.05") {
@@ -903,7 +903,7 @@ server <- function(input, output) {
       cell_essentiality_centre_selected <- cell_essentiality_msk
 
     } else if (center == "all morphic") {
-      cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
+      cell_essentiality_all_morphic <- readRDS("../../data/cell_essentiality_all_morphic.rda")
 
       sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
       if (sig_threshod_depmap_boxplot == "0.05") {
@@ -921,7 +921,7 @@ server <- function(input, output) {
       cell_essentiality_centre_selected <- cell_essentiality_all_morphic
 
     } else {
-      cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
+      cell_essentiality_ucsf <- readRDS("../../data/cell_essentiality_ucsf.rda")
 
       sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
       if (sig_threshod_depmap_boxplot == "0.05") {
@@ -977,7 +977,7 @@ server <- function(input, output) {
   output$cell_essentiality_boxplot_mef <- renderPlotly({
 
     # Load cell_essentiality RDS dataframe
-    cell_essentiality <- readRDS("./rda_data/cell_essentiality.rda")
+    cell_essentiality <- readRDS("../../data/cell_essentiality.rda")
 
     # Load hgnc ID input
     user_input_hgnc_id <- input$search_hgnc_id
@@ -998,7 +998,7 @@ server <- function(input, output) {
 
     threshold_value <- 0.1
     if (center == "jax") {
-      cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
+      cell_essentiality_jax <- readRDS("../../data/cell_essentiality_jax.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_jax %>%
         plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Bayes factor :", cell_essentiality_jax$h1_mef_BF,
@@ -1006,7 +1006,7 @@ server <- function(input, output) {
         layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "nwu") {
-      cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
+      cell_essentiality_nwu <- readRDS("../../data/cell_essentiality_nwu.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_nwu %>%
         plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Bayes factor :", cell_essentiality_nwu$h1_mef_BF,
@@ -1014,7 +1014,7 @@ server <- function(input, output) {
         layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "msk") {
-      cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
+      cell_essentiality_msk <- readRDS("../../data/cell_essentiality_msk.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_msk %>%
         plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Bayes factor :", cell_essentiality_msk$h1_mef_BF,
@@ -1022,7 +1022,7 @@ server <- function(input, output) {
         layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "all morphic") {
-      cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
+      cell_essentiality_all_morphic <- readRDS("../../data/cell_essentiality_all_morphic.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_all_morphic %>%
         plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Bayes factor :", cell_essentiality_all_morphic$h1_mef_BF,
@@ -1030,7 +1030,7 @@ server <- function(input, output) {
         layout(shapes = list(hline(threshold_value)))
 
     } else {
-      cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
+      cell_essentiality_ucsf <- readRDS("../../data/cell_essentiality_ucsf.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_ucsf %>%
         plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
@@ -1079,7 +1079,7 @@ server <- function(input, output) {
   output$cell_essentiality_boxplot_laminin <- renderPlotly({
 
     # Load cell_essentiality RDS dataframe
-    cell_essentiality <- readRDS("./rda_data/cell_essentiality.rda")
+    cell_essentiality <- readRDS("../../data/cell_essentiality.rda")
 
     # Load hgnc ID input
     user_input_hgnc_id <- input$search_hgnc_id
@@ -1100,7 +1100,7 @@ server <- function(input, output) {
 
     threshold_value <- 0.1
     if (center == "jax") {
-      cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
+      cell_essentiality_jax <- readRDS("../../data/cell_essentiality_jax.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_jax %>%
         plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Bayes factor :", cell_essentiality_jax$h1_laminin_BF,
@@ -1108,7 +1108,7 @@ server <- function(input, output) {
         layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "nwu") {
-      cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
+      cell_essentiality_nwu <- readRDS("../../data/cell_essentiality_nwu.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_nwu %>%
         plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Bayes factor :", cell_essentiality_nwu$h1_laminin_BF,
@@ -1116,7 +1116,7 @@ server <- function(input, output) {
         layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "msk") {
-      cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
+      cell_essentiality_msk <- readRDS("../../data/cell_essentiality_msk.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_msk %>%
         plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Bayes factor :", cell_essentiality_msk$h1_laminin_BF,
@@ -1124,7 +1124,7 @@ server <- function(input, output) {
         layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "all morphic") {
-      cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
+      cell_essentiality_all_morphic <- readRDS("../../data/cell_essentiality_all_morphic.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_all_morphic %>%
         plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Bayes factor :", cell_essentiality_all_morphic$h1_laminin_BF,
@@ -1132,7 +1132,7 @@ server <- function(input, output) {
         layout(shapes = list(hline(threshold_value)))
 
     } else {
-      cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
+      cell_essentiality_ucsf <- readRDS("../../data/cell_essentiality_ucsf.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_ucsf %>%
         plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
@@ -1181,12 +1181,12 @@ server <- function(input, output) {
 
   ### SHET MEAN
   output$gene_constraint_mean_shet <- renderPlotly({
-    gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+    gene_constraint_metrics <- readRDS("../../data/gene_constraint_metrics.rda")
 
     center <- input$center
     if (center == "jax") {
 
-      gene_constraint_jax <- readRDS("./rda_data/gene_constraint_jax.rda")
+      gene_constraint_jax <- readRDS("../../data/gene_constraint_jax.rda")
 
 
       gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1204,7 +1204,7 @@ server <- function(input, output) {
 
     } else if (center == "nwu") {
 
-      gene_constraint_nwu <- readRDS("./rda_data/gene_constraint_nwu.rda")
+      gene_constraint_nwu <- readRDS("../../data/gene_constraint_nwu.rda")
 
 
       gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1222,7 +1222,7 @@ server <- function(input, output) {
 
     } else if (center == "msk") {
 
-      gene_constraint_msk <- readRDS("./rda_data/gene_constraint_msk.rda")
+      gene_constraint_msk <- readRDS("../../data/gene_constraint_msk.rda")
 
 
       gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1240,7 +1240,7 @@ server <- function(input, output) {
 
     } else if (center == "all morphic") {
 
-      gene_constraint_all_morphic <- readRDS("./rda_data/gene_constraint_metrics_morphic_1006.rda")
+      gene_constraint_all_morphic <- readRDS("../../data/gene_constraint_metrics_morphic_1006.rda")
 
 
       gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1258,7 +1258,7 @@ server <- function(input, output) {
 
     } else {
 
-      gene_constraint_ucsf <- readRDS("./rda_data/gene_constraint_ucsf.rda")
+      gene_constraint_ucsf <- readRDS("../../data/gene_constraint_ucsf.rda")
 
 
       gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1294,12 +1294,12 @@ server <- function(input, output) {
 
   ### OE MIS gene_constraint_oe_mis
   output$gene_constraint_oe_mis <- renderPlotly({
-    gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+    gene_constraint_metrics <- readRDS("../../data/gene_constraint_metrics.rda")
 
     center <- input$center
     if (center == "jax") {
 
-      gene_constraint_jax <- readRDS("./rda_data/gene_constraint_jax.rda")
+      gene_constraint_jax <- readRDS("../../data/gene_constraint_jax.rda")
 
 
       gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1317,7 +1317,7 @@ server <- function(input, output) {
 
     } else if (center == "nwu") {
 
-      gene_constraint_nwu <- readRDS("./rda_data/gene_constraint_nwu.rda")
+      gene_constraint_nwu <- readRDS("../../data/gene_constraint_nwu.rda")
 
 
       gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1335,7 +1335,7 @@ server <- function(input, output) {
 
     } else if (center == "msk") {
 
-      gene_constraint_msk <- readRDS("./rda_data/gene_constraint_msk.rda")
+      gene_constraint_msk <- readRDS("../../data/gene_constraint_msk.rda")
 
 
       gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1353,7 +1353,7 @@ server <- function(input, output) {
 
     } else if (center == "all morphic") {
 
-      gene_constraint_all_morphic <- readRDS("./rda_data/gene_constraint_metrics_morphic_1006.rda")
+      gene_constraint_all_morphic <- readRDS("../../data/gene_constraint_metrics_morphic_1006.rda")
 
 
       gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1371,7 +1371,7 @@ server <- function(input, output) {
 
     } else {
 
-      gene_constraint_ucsf <- readRDS("./rda_data/gene_constraint_jax.rda")
+      gene_constraint_ucsf <- readRDS("../../data/gene_constraint_jax.rda")
 
 
       gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1407,12 +1407,12 @@ server <- function(input, output) {
 
   ### DOMINO
   output$gene_constraint_domino <- renderPlotly({
-    gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+    gene_constraint_metrics <- readRDS("../../data/gene_constraint_metrics.rda")
 
     center <- input$center
     if (center == "jax") {
 
-      gene_constraint_jax <- readRDS("./rda_data/gene_constraint_jax.rda")
+      gene_constraint_jax <- readRDS("../../data/gene_constraint_jax.rda")
 
 
       gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1430,7 +1430,7 @@ server <- function(input, output) {
 
     } else if (center == "nwu") {
 
-      gene_constraint_nwu <- readRDS("./rda_data/gene_constraint_nwu.rda")
+      gene_constraint_nwu <- readRDS("../../data/gene_constraint_nwu.rda")
 
 
       gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1448,7 +1448,7 @@ server <- function(input, output) {
 
     } else if (center == "msk") {
 
-      gene_constraint_msk <- readRDS("./rda_data/gene_constraint_msk.rda")
+      gene_constraint_msk <- readRDS("../../data/gene_constraint_msk.rda")
 
 
       gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1466,7 +1466,7 @@ server <- function(input, output) {
 
     } else if (center == "all morphic") {
 
-      gene_constraint_all_morphic <- readRDS("./rda_data/gene_constraint_metrics_morphic_1006.rda")
+      gene_constraint_all_morphic <- readRDS("../../data/gene_constraint_metrics_morphic_1006.rda")
 
 
       gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
@@ -1484,7 +1484,7 @@ server <- function(input, output) {
 
     } else {
 
-      gene_constraint_ucsf <- readRDS("./rda_data/gene_constraint_jax.rda")
+      gene_constraint_ucsf <- readRDS("../../data/gene_constraint_jax.rda")
 
 
       gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
