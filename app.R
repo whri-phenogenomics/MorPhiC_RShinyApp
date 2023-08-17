@@ -5,7 +5,8 @@ library(DT)
 library(plotly)
 library(UpSetR)
 library(ggplot2)
-
+library(rrvgo)
+library(shinyjs)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # LOAD TABLES
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,6 +27,40 @@ header <- dashboardHeader(
   title = tags$a(href='https://morphic.bio/',
                 tags$img(src='morphiclogo.png',style = "margin-left: -20px;"),
                 )
+  # tags$li(
+  #   class = "dropdown",
+  #   tags$style(HTML("
+  #         .navbar-custom-menu{float:left !important;}
+  #         .sidebar-menu{display:flex;align-items:baseline;}
+  #         "))
+  # ),
+
+  # tags$style(HTML("
+  #     .navbar-custom {
+  #       background-color: #001F3F; /* Navy blue */
+  #     }
+  #     .navbar-custom .navbar-nav > li > a {
+  #       color: #FFFFFF; /* White text */
+  #     }
+  #     .navbar-custom .navbar-nav > li > a:hover {
+  #       color: #87CEEB; /* Lighter blue on hover */
+  #     }
+  #     .navbar-custom .navbar-nav > .active > a,
+  #     .navbar-custom .navbar-nav > .active > a:focus,
+  #     .navbar-custom .navbar-nav > .active > a:hover {
+  #       background-color: #002855; /* Darker blue when selected */
+  #     }
+  #   ")),
+  # tags$li(
+  #   class = "dropdown",
+  #   sidebarMenu(
+  #     id = "tablist",
+  #     menuItem("MorPhiC Genes", tabName = "genes", icon = icon("table")),
+  #     menuItem("Visualisations", tabName = "visualisations", icon = icon("chart-bar")),
+  #     menuItem("Data info", tabName = "data_info", icon = icon("info")),
+  #     menuItem("About MorPhiC", tabName = "about_morphic", icon = icon("magnifying-glass"))
+  #   )
+  # )
 )
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,9 +73,8 @@ sidebar <- dashboardSidebar(
     menuItem("Data info", tabName = "data_info", icon = icon("info")),
     menuItem("About MorPhiC", tabName = "about_morphic", icon = icon("magnifying-glass"))
 
-  ),
-  titleWidth = 273
-
+  )
+  # disable = TRUE
 )
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,6 +82,53 @@ sidebar <- dashboardSidebar(
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 body <- dashboardBody(
   fillPage = TRUE,
+  # tags$head(tags$style(HTML('
+  #                               /* logo */
+  #                               .skin-blue .main-header .logo {
+  #                               background-color: #f4b943;
+  #                               }
+  #
+  #                               /* logo when hovered */
+  #                               .skin-blue .main-header .logo:hover {
+  #                               background-color: #f4b943;
+  #                               }
+  #
+  #                               /* navbar (rest of the header) */
+  #                               .skin-blue .main-header .navbar {
+  #                               background-color: #096BD2;
+  #                               }
+  #
+  #                               /* main sidebar */
+  #                               .skin-blue .main-sidebar {
+  #                               background-color: #FFFFFF;
+  #                               }
+  #
+  #                               /* active selected tab in the sidebarmenu */
+  #                               .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+  #                               background-color: #015BB8;
+  #                               }
+  #
+  #                               /* other links in the sidebarmenu */
+  #                               .skin-blue .main-sidebar .sidebar .sidebar-menu a{
+  #                               background-color: #86E8F0;
+  #                               color: #FFFFFF;
+  #                               }
+  #
+  #                               /* other links in the sidebarmenu when hovered */
+  #                               .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+  #                               background-color: #2286EE;
+  #                               }
+  #                               /* toggle button when hovered  */
+  #                               .skin-blue .main-header .navbar .sidebar-toggle:hover{
+  #                               background-color: #ff69b4;
+  #                               }
+  #
+  #                               /* body */
+  #                               .content-wrapper, .right-side {
+  #                               background-color: #FFFFFF;
+  #                               }
+  #
+  #                               '))),
   tabItems(
     tabItem(
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,10 +192,10 @@ body <- dashboardBody(
           fluidRow(
             column(width = 4,
                    checkboxGroupInput("data_sources", label = NULL,
-                                      choices = c("gene identifiers", "centers", "impc",
-                                                  "itv metrics", "ddg2p", "omim",
-                                                  "go", "panther", "reactome"),
-                                      selected = c("gene identifiers", "centers")),
+                                      choices = c("Gene Identifiers", "Data Production Centers", "IMPC Mouse Model Data",
+                                                  "Gene Constraint Metrics", "Disease Data",
+                                                  "Gene Ontology", "PANTHERdb Protein Data", "Reactome Pathway Data"),
+                                      selected = c("Gene Identifiers", "Data Production Centers")),
             )
           )
         )),
@@ -134,6 +215,9 @@ body <- dashboardBody(
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
       tabName = "data_info",
+      tags$div(class = "banner",
+               h2("Meta Data Information"),
+      ),
       fluidRow(
         column(width = 12, h2("Gene Identifiers"), DTOutput("table_gene_identifiers"))
       ),
@@ -171,26 +255,98 @@ body <- dashboardBody(
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
       tabName = "about_morphic",
+      # fluidRow(
+      #   box(
+      #     width = 12,
+      #     title = "What is MorPhiC",
+      #     status = "info",
+      #     solidHeader = TRUE,
+      #     uiOutput("morphic_description")
+      #   )
+      # ),
+
+      tags$style(HTML("
+        .banner {
+          background-color: #001F3F;
+          color: white;
+          padding: 10px;
+          text-align: center;
+          font-weight: bold;
+        }
+      ")),
+      tags$div(class = "banner",
+               h2("What is MorPhiC")
+               ),
+               hr(),
+      fluidRow(
+      box(
+        width = 12,
+        uiOutput("morphic_description")
+      )),
+
+
+      tags$div(class = "banner",
+               h2("Data Production Centers (DPCs)"),
+      ),
+      hr(),
       fluidRow(
         box(
-          width = 12,
-          title = "What is MorPhiC",
-          status = "info",
+          width = 3,
+          title = "JAX",
           solidHeader = TRUE,
-          uiOutput("morphic_description")
+          uiOutput("jax_description")
+        ),
+        box(
+          width = 3,
+          title = "MSK",
+          solidHeader = TRUE,
+          uiOutput("msk_description")
+        ),
+        box(
+          width = 3,
+          title = "NWU",
+          solidHeader = TRUE,
+          uiOutput("nwu_description")
+        ),
+        box(
+          width = 3,
+          title = "UCSF",
+          solidHeader = TRUE,
+          uiOutput("ucsf_description")
         )
-      )),
+      )
+      ),
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # DATA VISUALISATIONS TAB
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     tabItem(
       tabName = "visualisations",
+      ##### PUT IN COLUMN OF WIDTH 9
       tabsetPanel(
-        tabPanel("UpSet Plot", id = "upset_plot_tab",
-                 plotOutput("upsetplot", height = "60vh")
+        tabPanel(HTML("DPCs Genes of Interest<br><span style='font-size: 14px;'>&nbsp;</span>"), id = "upset_plot_tab",
+                 fluidRow(
+                   column(
+                     width = 9,
+                     uiOutput("upset_text")
+                   )
+                 ),
+                 hr(),
+                 fluidRow(
+                   column(
+                     width =9,
+                     plotOutput("upsetplot", height = "60vh")
+                   )
+                 )
         ),
 
-        tabPanel("Viability", id = "viability_tab",
+        tabPanel(HTML("Mouse Model Data<br><span style='font-size: 14px;'>&nbsp;</span>"), id = "viability_tab",
+                 fluidRow(
+                   column(
+                     width = 9,
+                     uiOutput("viability_text")
+                   )
+                 ),
+                 hr(),
                  fluidRow(
                    column(width = 9, plotlyOutput("viability_plot", height = "60vh")),
                    column(
@@ -202,15 +358,30 @@ body <- dashboardBody(
                        selectInput(
                          "center_viability",
                          "Select center gene list:",
-                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
+                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf", "all centers"),
                          selected = "all morphic"  # Set the default selected option
                        )
                      )
                    )
+                 ),
+                 hr(),
+                 fluidRow(
+                   box(
+                     width = 9,
+                     title = 'IMPC Mouse Model Data',
+                     DTOutput('impc_data_table')
+                   )
                  )
         ),
 
-        tabPanel("OMIM", id = "omim_tab",
+        tabPanel(HTML("Disease Data<br><span style='font-size: 14px;'>&nbsp;</span>"), id = "omim_tab",
+                 fluidRow(
+                   column(
+                     width = 9,
+                     uiOutput("disease_text")
+                   )
+                 ),
+                 hr(),
                  fluidRow(
                    column(width = 9, plotlyOutput("omim_plot", height = "60vh")),
                    column(
@@ -222,17 +393,46 @@ body <- dashboardBody(
                        selectInput(
                          "center_omim",
                          "Select center gene list:",
-                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
+                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf", "all centers"),
                          selected = "all morphic"  # Set the default selected option
                        )
                      )
                    )
+                 ),
+                 hr(),
+                 fluidRow(
+                   box(
+                     width = 9,
+                     title = 'OMIM Disease Data',
+                     DTOutput('omim_data_table')
+                   )
                  )
         ),
 
-        tabPanel("Panther", id = "panther_tab",
+        tabPanel(HTML("PANTHERdb<br><span style='font-size: 14px;'>(Protein Data)</span>"), id = "panther_tab",
                  fluidRow(
-                   column(width = 9, plotlyOutput("panther_plot", height = "60vh")),
+                   column(
+                     width = 9,
+                     uiOutput("panther_text")
+                   )
+                 ),
+                 hr(),
+                 fluidRow(
+                   conditionalPanel(
+                     condition = "input.center_panther != 'all centers'",
+                     column(width = 9, plotlyOutput("panther_plot", height = "60vh"))
+                     ),
+                   conditionalPanel(
+                     condition = "input.center_panther == 'all centers'",
+                     column( width = 9,
+                       fluidRow(width = 12,
+                              splitLayout(cellWidths = c("50%", "50%"),
+                                          plotlyOutput("panther_jax_plot"), plotlyOutput("panther_msk_plot"))),
+                       fluidRow(width = 12,
+                              splitLayout(cellWidths = c("50%", "50%"),
+                                          plotlyOutput("panther_nwu_plot"), plotlyOutput("panther_ucsf_plot")))
+                     )
+                   ),
                    column(
                      width = 3,
                      box(
@@ -242,55 +442,30 @@ body <- dashboardBody(
                        selectInput(
                          "center_panther",
                          "Select center gene list:",
-                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
+                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf", "all centers"),
                          selected = "all morphic"  # Set the default selected option
                        )
                      )
                    )
-                 )
-        ),
-
-        tabPanel("GO Semantic Similarity", id = "go_scatter_tab",
+                 ),
+                 hr(),
                  fluidRow(
-                   column(width = 9, plotlyOutput("go_scatter", height = "60vh")),
-                   column(
-                     width = 3,
-                     box(
-                       width = 12,
-                       title = "Options",
-                       status = "primary",
-                       selectInput(
-                         "center_go",
-                         "Select center gene list:",
-                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
-                         selected = "all morphic"  # Set the default selected option
-                       )
-                     )
+                   box(
+                     width = 9,
+                     title = 'PANTHERdb Data',
+                     DTOutput('panther_data_table')
                    )
                  )
         ),
 
-        tabPanel("Reactome Enrichment Map", id = "reactome_emapplot_tab",
+        tabPanel(HTML("Cellular Core Essentiality Data<br><span style='font-size: 14px;'>&nbsp;</span>"), id = "cell_essentiality_plot_tab",
                  fluidRow(
-                   column(width = 9, plotOutput("reactome_emapplot", height = "60vh")),
                    column(
-                     width = 3,
-                     box(
-                       width = 12,
-                       title = "Options",
-                       status = "primary",
-                       selectInput(
-                         "center_reactome",
-                         "Select center gene list:",
-                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
-                         selected = "all morphic"  # Set the default selected option
-                       )
-                     )
+                     width = 9,
+                     uiOutput("cell_essential_text")
                    )
-                 )
-        ),
-
-        tabPanel("Cellular Essentiality (barcharts)", id = "cell_essentiality_plot_tab",
+                 ),
+                 hr(),
                  fluidRow(
                    column(width = 9, plotlyOutput("cell_essentiality_plot", height = "60vh")),
                    column(
@@ -302,82 +477,223 @@ body <- dashboardBody(
                        selectInput(
                          "center_cell_essentiality_barchart",
                          "Select center gene list:",
-                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
+                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf", "all centers"),
                          selected = "all morphic"  # Set the default selected option
                        )
                      )
                    )
-                 )
-        ),
-
-        tabPanel("Cell essentiallity (boxplots)", id = "cell_essentiality_boxplots_tab",
-                 column(
-                   width = 9,
-                   fluidRow(
-                     column(12, plotlyOutput("cell_essentiality_boxplot_depmap", height = "40vh")) # Adjust height as needed
-                   ),
-                   hr(),
-                   fluidRow(
-                     column(12, plotlyOutput("cell_essentiality_boxplot_mef", height = "40vh"))    # Adjust height as needed
-                   ),
-                   hr(),
-                   fluidRow(
-                     column(12, plotlyOutput("cell_essentiality_boxplot_laminin", height = "40vh"))    # Adjust height as needed
-                   ),
-                   hr()
-
                  ),
-                 column(
-                   width = 3,
+                 hr(),
+                 fluidRow(
                    box(
-                     width = 12,
-                     title = "Options",
-                     status = "primary",
-                     selectInput(
-                       "center_cell_essentiality_boxplots",
-                       "Select center gene list:",
-                       choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
-                       selected = "all morphic"  # Set the default selected option
-                     ),
-                     selectInput(
-                       "cell_essential_depmap_significance_threshold",
-                       "Select significance threshold for Cell essentiality DepMap data:",
-                       choices = c("0.05", "0.01"),
-                       selected = "0.05"  # Set the default selected option
-                     ),
-                     textInput("search_hgnc_id", "Search Gene:", placeholder = "HGNC:3239"),
-                     checkboxInput(inputId = "compare_protein_coding_genes", label = "Compare to all protein coding genes")
+                     width = 9,
+                     title = 'Cellular Essentiality Data',
+                     DTOutput('cell_essentiality_data_table')
                    )
                  )
         ),
 
-        tabPanel("Gene constraint metrics", id = "gene_constraint_metrics_tab",
-                 column(
-                   width = 9,
-                   fluidRow(column(12, plotlyOutput("gene_constraint_mean_shet", height = "40vh"))),
-                   hr(),
-                   fluidRow(column(12, plotlyOutput("gene_constraint_oe_mis", height = "40vh"))),
-                   hr(),
-                   fluidRow(column(12, plotlyOutput("gene_constraint_domino", height = "40vh")))
+        tabPanel(HTML("Gene Onotology<br><span style='font-size: 14px;'>(Semantic Similarity Analysis)</span>"), id = "go_scatter_tab",
+                 fluidRow(
+                   conditionalPanel(
+                     condition = "input.center_go != 'all centers'",
+                     column(width = 9, plotlyOutput("go_scatter", height = "60vh"))
+                   ),
+                   conditionalPanel(
+                     condition = "input.center_go == 'all centers'",
+                     column( width = 9,
+                             fluidRow(width = 12,
+                                      splitLayout(cellWidths = c("50%", "50%"),
+                                                  plotlyOutput("go_jax_plot"), plotlyOutput("go_msk_plot"))),
+                             fluidRow(width = 12,
+                                      splitLayout(cellWidths = c("50%", "50%"),
+                                                  plotlyOutput("go_nwu_plot"), plotlyOutput("go_ucsf_plot")))
+                     )
+                   ),
+                   column(
+                     width = 3,
+                     box(
+                       width = 12,
+                       title = "Options",
+                       status = "primary",
+                       selectInput(
+                         "center_go",
+                         "Select center gene list:",
+                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf", "all centers"),
+                         selected = "all morphic"  # Set the default selected option
+                       )
+                     )
+                   )
                  ),
-                 column(
-                   width = 3,
+                 hr(),
+                 fluidRow(
                    box(
-                     width = 12,
-                     title = "Options",
-                     status = "primary",
-                     selectInput(
-                       "center",
-                       "Select center gene list:",
-                       choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
-                       selected = "all morphic"  # Set the default selected option
-                     ),
-                     sliderInput("bins", label = h4("Specified Bin Size"),
-                                 min = 0.01, max = 0.1, value = 0.05, step = 0.01
-                     ),
-                     checkboxInput(inputId = "compare_protein_coding_genes_gene_constraint", label = "Compare to all protein coding genes")
+                     width = 9,
+                     title = 'Gene Ontology Data',
+                     DTOutput('go_data_table')
                    )
                  )
+        ),
+
+        tabPanel(HTML("Reactome<br><span style='font-size: 14px;'>(Enrichment Analysis)</span>"), id = "reactome_emapplot_tab",
+                 fluidRow(
+                   conditionalPanel(
+                     condition = "input.center_reactome != 'all centers'",
+                     column(width = 9, plotOutput("reactome_emapplot", height = "60vh"))
+                   ),
+                   conditionalPanel(
+                     condition = "input.center_reactome == 'all centers'",
+                     column( width = 9,
+                             fluidRow(width = 12,
+                                      splitLayout(cellWidths = c("50%", "50%"),
+                                                  plotOutput("jax_reactome_emapplot"), plotOutput("msk_reactome_emapplot"))),
+                             fluidRow(width = 12,
+                                      splitLayout(cellWidths = c("50%", "50%"),
+                                                  plotOutput("nwu_reactome_emapplot"), plotOutput("ucsf_reactome_emapplot")))
+                     )
+                   ),
+                   column(
+                     width = 3,
+                     box(
+                       width = 12,
+                       title = "Options",
+                       status = "primary",
+                       selectInput(
+                         "center_reactome",
+                         "Select center gene list:",
+                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf", "all centers"),
+                         selected = "all morphic"  # Set the default selected option
+                       )
+                     )
+                   )
+                 ),
+                 hr(),
+                 fluidRow(
+                   box(
+                     width = 9,
+                     title = 'Reactome Pathway Data',
+                     DTOutput('reactome_data_table')
+                   )
+                 )
+        ),
+
+        # tabPanel("Cell essentiallity (boxplots)", id = "cell_essentiality_boxplots_tab",
+        #          column(
+        #            width = 9,
+        #            fluidRow(
+        #              column(12, plotlyOutput("cell_essentiality_boxplot_depmap", height = "40vh")) # Adjust height as needed
+        #            ),
+        #            hr(),
+        #            fluidRow(
+        #              column(12, plotlyOutput("cell_essentiality_boxplot_mef", height = "40vh"))    # Adjust height as needed
+        #            ),
+        #            hr(),
+        #            fluidRow(
+        #              column(12, plotlyOutput("cell_essentiality_boxplot_laminin", height = "40vh"))    # Adjust height as needed
+        #            ),
+        #            hr()
+        #
+        #          ),
+        #          column(
+        #            width = 3,
+        #            box(
+        #              width = 12,
+        #              title = "Options",
+        #              status = "primary",
+        #              selectInput(
+        #                "center_cell_essentiality_boxplots",
+        #                "Select center gene list:",
+        #                choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
+        #                selected = "all morphic"  # Set the default selected option
+        #              ),
+        #              selectInput(
+        #                "cell_essential_depmap_significance_threshold",
+        #                "Select significance threshold for Cell essentiality DepMap data:",
+        #                choices = c("0.05", "0.01"),
+        #                selected = "0.05"  # Set the default selected option
+        #              ),
+        #              textInput("search_hgnc_id", "Search Gene:", placeholder = "HGNC:3239"),
+        #              checkboxInput(inputId = "compare_protein_coding_genes", label = "Compare to all protein coding genes")
+        #            )
+        #          )
+        # ),
+
+        tabPanel(HTML("Cellular Core Essentiallity<br><span style='font-size: 14px;'>(Cell Line Data)</span>"), id = "cell_essentiality_boxplots_tab",
+                 fluidRow(
+                   column(
+                     width = 9,
+                     fluidRow(
+                       column(12, plotlyOutput("cell_essentiality_boxplot_depmap", height = "40vh")) # Adjust height as needed
+                     ),
+                     hr(),
+                     fluidRow(
+                       column(12, plotlyOutput("cell_essentiality_boxplot_mef", height = "40vh"))    # Adjust height as needed
+                     ),
+                     hr(),
+                     fluidRow(
+                       column(12, plotlyOutput("cell_essentiality_boxplot_laminin", height = "40vh"))    # Adjust height as needed
+                     ),
+                     hr()
+
+
+                   ),
+                   column(
+                     width = 3,
+                     box(
+                       width = 12,
+                       title = "Options",
+                       status = "primary",
+                       selectInput(
+                         "center_cell_essentiality_boxplots",
+                         "Select center gene list:",
+                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf", "all centers"),
+                         selected = "all morphic"  # Set the default selected option
+                       ),
+                       selectInput(
+                         "cell_essential_depmap_significance_threshold",
+                         "Select significance threshold for Cell essentiality DepMap data:",
+                         choices = c("0.05", "0.01"),
+                         selected = "0.05"  # Set the default selected option
+                       ),
+                       textInput("search_hgnc_id", "Search Gene:", placeholder = "HGNC:3239"),
+                       checkboxInput(inputId = "compare_protein_coding_genes", label = "Compare to all protein coding genes")
+                     )
+                   )
+                   )
+
+        ),
+
+        #### NEEDS TO BE: oe lof, oe mis, shet rgc-me, shet post, domino, scones
+        tabPanel(HTML("Cellular Core Essentiallity<br><span style='font-size: 14px;'>(Sequencing Data)</span>"), id = "gene_constraint_metrics_tab",
+                 fluidRow(
+                   column(
+                     width = 9,
+                     fluidRow(column(12, plotlyOutput("gene_constraint_mean_shet", height = "40vh"))),
+                     hr(),
+                     fluidRow(column(12, plotlyOutput("gene_constraint_oe_mis", height = "40vh"))),
+                     hr(),
+                     fluidRow(column(12, plotlyOutput("gene_constraint_domino", height = "40vh")))
+                   ),
+                   column(
+                     width = 3,
+                     box(
+                       width = 12,
+                       title = "Options",
+                       status = "primary",
+                       selectInput(
+                         "center",
+                         "Select center gene list:",
+                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
+                         selected = "all morphic"  # Set the default selected option
+                       ),
+                       sliderInput("bins", label = h4("Specified Bin Size"),
+                                   min = 0.01, max = 0.1, value = 0.05, step = 0.01
+                       ),
+                       checkboxInput(inputId = "compare_protein_coding_genes_gene_constraint", label = "Compare to all protein coding genes")
+                     )
+                   )
+                 )
+
         )
       )
 
@@ -390,8 +706,8 @@ body <- dashboardBody(
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # DEFINE UI
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ui <- dashboardPage(header, sidebar, body)
 ui <- dashboardPage(header, sidebar, body)
-
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -445,17 +761,17 @@ server <- function(input, output) {
         th(colspan = 3, 'Gene Identifiers'),
         th(colspan = 4, 'MorPhiC DPCs'),
         th(colspan = 5, 'IMPC'),
-        th(colspan = 3, 'ItV Metrics: DepMap'),
-        th(colspan = 3, 'ItV Metrics: MEF hPSCs'),
-        th(colspan = 3, 'ItV Metrics: Laminin hPSCs'),
-        th(colspan = 3, 'ItV Metrics: O/E LOF'),
-        th(colspan = 3, 'ItV Metrics: O/E Missense'),
-        th(colspan = 3, 'ItV Metrics: Shet RGC-ME'),
-        th(colspan = 3, 'ItV Metrics: Shet posterior'),
-        th(colspan = 1, 'ItV Metrics: DOMINO'),
-        th(colspan = 1, 'ItV Metrics: SCoNeS'),
-        th(colspan = 4, 'DDGene2Phenotype'),
-        th(colspan = 4, 'OMIM'),
+        th(colspan = 3, 'Constraint Metrics: DepMap'),
+        th(colspan = 3, 'Constraint Metrics: MEF hPSCs'),
+        th(colspan = 3, 'Constraint Metrics: Laminin hPSCs'),
+        th(colspan = 3, 'Constraint Metrics: O/E LOF'),
+        th(colspan = 3, 'Constraint Metrics: O/E Missense'),
+        th(colspan = 3, 'Constraint Metrics: Shet RGC-ME'),
+        th(colspan = 3, 'Constraint Metrics: Shet posterior'),
+        th(colspan = 1, 'Constraint Metrics: DOMINO'),
+        th(colspan = 1, 'Constraint Metrics: SCoNeS'),
+        th(colspan = 4, 'Disease Data: DDGene2Phenotype'),
+        th(colspan = 4, 'Disease Data: OMIM'),
         th(colspan = 2, 'GO: Biological Process'),
         th(colspan = 2, 'GO: Molecular Function'),
         th(colspan = 2, 'GO: Cellular Component'),
@@ -467,10 +783,10 @@ server <- function(input, output) {
       tr(
         th('Gene Symbol'), th('HGNC ID'), th('MGI ID'),
         th('JAX'), th('MSK'), th('NWU'), th('UCSF'),
-        th('viability'), th('one2one ortholog'), th('phenotypes homozygote'), th('phenotypes heterozygote'), th('phenotypes hemizygote'),
-        th('mean gene effect score'), th('essential (p < 0.05'), th('essential (p < 0.01)'), th('Bayes Factor'), th('False Discovery Rate'),  th('Essential/Non-essential'), th('Bayes Factor'), th('False Discovery Rate'),  th('Essential/Non-essential'), th('Score'), th('Lower score'), th('Upper score'), th('Score'), th('Lower score'), th('Upper score'), th('Mean'), th('Lower'), th('Upper'), th('Mean'), th('Lower 95'), th('Upper 95'), th('Score'), th('Score'),
-        th('disease name'), th('confidence category'), th('allelic requirement'), th('organ specificity'),
-        th('phenotype'), th('mode of inheritance'), th('gene lethality'), th('earliest lethality category'),
+        th('Viability'), th('One2one ortholog'), th('Phenotypes homozygote'), th('Phenotypes heterozygote'), th('Phenotypes hemizygote'),
+        th('Mean gene effect score'), th('Cellular core essential (< -0.5)'), th('Cellular core essential (< -1)'), th('Bayes Factor'), th('False Discovery Rate'),  th('Essential/Non-essential'), th('Bayes Factor'), th('False Discovery Rate'),  th('Essential/Non-essential'), th('Score'), th('Lower score'), th('Upper score'), th('Score'), th('Lower score'), th('Upper score'), th('Mean'), th('Lower'), th('Upper'), th('Mean'), th('Lower 95'), th('Upper 95'), th('Score'), th('Score'),
+        th('Disease name'), th('Confidence category'), th('Allelic requirement'), th('Organ specificity'),
+        th('Phenotype'), th('Mode of inheritance'), th('Gene lethality'), th('Earliest lethality category'),
         th('ID'), th('Term'), th('ID'), th('Term'), th('ID'), th('Term'),
         th('ID'), th('Term'), th('ID'), th('Term'), th('Term'),
         th('Path ID'), th('Path name')
@@ -481,15 +797,14 @@ server <- function(input, output) {
   # Function to get hidden column indices based on selected data sources
   getHiddenColumns <- function(selected_sources) {
     source_to_columns <- list(
-      "gene identifiers" = 0:2,
-      "centers" = 3:6,
-      "impc" = 7:11,
-      "itv metrics" = 12:34,
-      "ddg2p" = 35:38,
-      "omim" = 39:42,
-      "go" = 43:48,
-      "panther" = 49:53,
-      "reactome" = 54:55
+      "Gene Identifiers" = 0:2,
+      "Data Production Centers" = 3:6,
+      "IMPC Mouse Model Data" = 7:11,
+      "Gene Constraint Metrics" = 12:34,
+      "Disease Data" = 35:42,
+      "Gene Ontology" = 43:48,
+      "PANTHERdb Protein Data" = 49:53,
+      "Reactome Pathway Data" = 54:55
     )
 
     hidden_columns <- unlist(lapply(selected_sources, function(source) {
@@ -510,7 +825,7 @@ server <- function(input, output) {
         filtered_data(),
         plugins = "ellipsis",
         extensions = 'Buttons',
-        class = "display nowrap cell-border",
+        class = "display nowrap",
         container = headers,
         filter = "top",
         rownames = FALSE,
@@ -521,7 +836,7 @@ server <- function(input, output) {
           searching = TRUE,
           dom = 'Bfrtip',
           buttons = list(
-            list(extend = "csv", text = "Download Full Results", filename = "Full_data",
+            list(extend = "csv", text = "Download Full Table", filename = "Full_data",
                  exportOptions = list(
                    modifier = list(page = "all"),
                    orthogonal = "export"
@@ -651,7 +966,7 @@ server <- function(input, output) {
         width = 12,
         title = "Invalid Gene",
         status = "warning",
-        "Please enter a valid gene name or HGNC ID."
+        "This gene is not contained within the MorPhiC gene list."
       )
     }
   })
@@ -790,6 +1105,7 @@ server <- function(input, output) {
   # Render the Viability plot based on the selected center
   output$viability_plot <- renderPlotly({
     center <- input$center_viability
+
     if (center == "jax") {
       # Load JAX viability plot object (jax_plot_via_all.rda)
       jax_plot <- readRDS("./rda_data/jax_plot_via_all.rda")
@@ -809,6 +1125,10 @@ server <- function(input, output) {
       all_plot <- readRDS("./rda_data/all_morphic_plot_via_all.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
+    } else if (center == "all centers") {
+        all_centers_plot <- readRDS("./rda_data/impc_viability_all_centers_plot.rda")
+
+        all_centers_plot
     } else {
       # Load UCSF viability plot object (ucsf_plot_via_all.rda)
       ucsf_plot <- readRDS("./rda_data/ucsf_plot_via_all.rda")
@@ -839,6 +1159,10 @@ server <- function(input, output) {
       all_plot <- readRDS("./rda_data/all_morphic_plot_cells_all.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
+    } else if (center == "all centers") {
+      all_centers_plot <- readRDS("./rda_data/impc_viability_all_centers_plot.rda")
+
+      all_centers_plot
     } else {
       # Load UCSF cellular essentiality plot object (ucsf_plot_cells_all.rda)
       ucsf_plot <- readRDS("./rda_data/ucsf_plot_cells_all.rda")
@@ -869,6 +1193,10 @@ server <- function(input, output) {
       all_plot <- readRDS("./rda_data/all_morphic_plot_omim_all.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
+    } else if (center == "all centers") {
+      all_centers_plot <- readRDS("./rda_data/omim_all_centers_plot.rda")
+
+      all_centers_plot
     } else {
       # Load UCSF OMIM plot object (ucsf_plot_omim_all_ucsf.rda)
       ucsf_plot <- readRDS("./rda_data/ucsf_plot_omim_all.rda")
@@ -880,30 +1208,63 @@ server <- function(input, output) {
   # Render the Panther plot based on the selected center
   output$panther_plot <- renderPlotly({
     center <- input$center_panther
+    jax_plot <- readRDS("./rda_data/jax_plot_panther_all.rda")
+    msk_plot <- readRDS("./rda_data/msk_plot_panther_all.rda")
+    nwu_plot <- readRDS("./rda_data/nwu_plot_panther_all.rda")
+    all_plot <- readRDS("./rda_data/all_morphic_plot_panther_all.rda")
+    ucsf_plot <- readRDS("./rda_data/ucsf_plot_panther_all.rda")
+
     if (center == "jax") {
       # Load JAX Panther plot object (jax_plot_panther_all.rda)
-      jax_plot <- readRDS("./rda_data/jax_plot_panther_all.rda")
       # Replace with code to customize the JAX Panther plot
       jax_plot  # Return the plot object
     } else if (center == "msk") {
       # Load MSK Panther plot object (msk_plot_panther_all.rda)
-      msk_plot <- readRDS("./rda_data/msk_plot_panther_all.rda")
       # Replace with code to customize the MSK Panther plot
       msk_plot  # Return the plot object
     } else if (center == "nwu") {
       # Load NWU Panther plot object (nwu_plot_panther_all.rda)
-      nwu_plot <- readRDS("./rda_data/nwu_plot_panther_all.rda")
       # Replace with code to customize the NWU Panther plot
       nwu_plot  # Return the plot object
     } else if (center == "all morphic") {
-      all_plot <- readRDS("./rda_data/all_morphic_plot_panther_all.rda")
       # Replace with code to customize the NWU viability plot
       all_plot  # Return the plot object
     } else {
       # Load UCSF Panther plot object (ucsf_plot_panther_all.rda)
-      ucsf_plot <- readRDS("./rda_data/ucsf_plot_panther_all.rda")
       # Replace with code to customize the UCSF Panther plot
       ucsf_plot  # Return the plot object
+    }
+  })
+
+  output$panther_jax_plot <- renderPlotly({
+    center <- input$center_panther
+    if (center == "all centers") {
+      jax_plot <- readRDS("./rda_data/jax_plot_panther_all.rda")
+      jax_plot
+    }
+  })
+
+  output$panther_msk_plot <- renderPlotly({
+    center <- input$center_panther
+    if (center == "all centers") {
+      msk_plot <- readRDS("./rda_data/msk_plot_panther_all.rda")
+      msk_plot
+    }
+  })
+
+  output$panther_nwu_plot <- renderPlotly({
+    center <- input$center_panther
+    if (center == "all centers") {
+      nwu_plot <- readRDS("./rda_data/nwu_plot_panther_all.rda")
+      nwu_plot
+    }
+  })
+
+  output$panther_ucsf_plot <- renderPlotly({
+    center <- input$center_panther
+    if (center == "all centers") {
+      ucsf_plot <- readRDS("./rda_data/ucsf_plot_panther_all.rda")
+      ucsf_plot
     }
   })
 
@@ -929,8 +1290,105 @@ server <- function(input, output) {
     }
   })
 
+  output$go_jax_plot <- renderPlotly({
+    center <- input$center_go
+    go_plots <- readRDS("./rda_data/go_scatter_plots.rda")
+    jax_plot <- go_plots[[1]]
+    # GET SIM MATRIX
+    jax_plot$plot_env$simMatrix
+
+    # GET REDUCED TERMS
+    jax_plot$plot_env$reducedTerms
+
+    # Create a scatter plot object
+    go_scatterplot_obj <- scatterPlot(jax_plot$plot_env$simMatrix, jax_plot$plot_env$reducedTerms, addLabel = TRUE)
+
+    go_scatterplot_obj <- go_scatterplot_obj + geom_text(aes(label=jax_plot$plot_env$reducedTerms$parentTerm))
+    if (center == "all centers") {
+      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3)
+    }
+  })
+
+  output$go_msk_plot <- renderPlotly({
+    center <- input$center_go
+    go_plots <- readRDS("./rda_data/go_scatter_plots.rda")
+    msk_plot <- go_plots[[2]]
+    # GET SIM MATRIX
+    msk_plot$plot_env$simMatrix
+
+    # GET REDUCED TERMS
+    msk_plot$plot_env$reducedTerms
+
+    # Create a scatter plot object
+    go_scatterplot_obj <- scatterPlot(msk_plot$plot_env$simMatrix, msk_plot$plot_env$reducedTerms, addLabel = TRUE)
+
+    go_scatterplot_obj <- go_scatterplot_obj + geom_text(aes(label=msk_plot$plot_env$reducedTerms$parentTerm))
+    if (center == "all centers") {
+      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3)
+    }
+  })
+
+  output$go_nwu_plot <- renderPlotly({
+    center <- input$center_go
+    go_plots <- readRDS("./rda_data/go_scatter_plots.rda")
+    nwu_plot <- go_plots[[3]]
+    # GET SIM MATRIX
+    nwu_plot$plot_env$simMatrix
+
+    # GET REDUCED TERMS
+    nwu_plot$plot_env$reducedTerms
+
+    # Create a scatter plot object
+    go_scatterplot_obj <- scatterPlot(nwu_plot$plot_env$simMatrix, nwu_plot$plot_env$reducedTerms, addLabel = TRUE)
+
+    go_scatterplot_obj <- go_scatterplot_obj + geom_text(aes(label=nwu_plot$plot_env$reducedTerms$parentTerm))
+    if (center == "all centers") {
+      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3)
+    }
+  })
+
+  output$go_ucsf_plot <- renderPlotly({
+    center <- input$center_go
+    go_plots <- readRDS("./rda_data/go_scatter_plots.rda")
+    ucsf_plot <- go_plots[[4]]
+    # GET SIM MATRIX
+    ucsf_plot$plot_env$simMatrix
+
+    # GET REDUCED TERMS
+    ucsf_plot$plot_env$reducedTerms
+
+    # Create a scatter plot object
+    go_scatterplot_obj <- scatterPlot(ucsf_plot$plot_env$simMatrix, ucsf_plot$plot_env$reducedTerms, addLabel = TRUE)
+
+    go_scatterplot_obj <- go_scatterplot_obj + geom_text(aes(label=ucsf_plot$plot_env$reducedTerms$parentTerm))
+    if (center == "all centers") {
+      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3)
+    }
+  })
+
   # Render the Reactome emapplot plot based on the selected center
   # Not using plotly as emapplot not supported
+  # output$reactome_emapplot <- renderPlot({
+  #   center <- input$center_reactome
+  #   if (center == "jax") {
+  #     jax_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
+  #     jax_plot[[1]]  # Return the plot object
+  #   } else if (center == "nwu") {
+  #     nwu_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
+  #     nwu_plot[[2]]  # Return the plot object
+  #   } else if (center == "msk") {
+  #     msk_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
+  #     msk_plot[[3]]  # Return the plot object
+  #   } else if (center == "all morphic") {
+  #     all_plot <- readRDS("./rda_data/all_morphic_reactome_emmaplot.rda")
+  #     # Replace with code to customize the NWU viability plot
+  #     all_plot  # Return the plot object
+  #   } else {
+  #     ucsf_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
+  #     ucsf_plot[[4]]  # Return the plot object
+  #   }
+  # })
+
   output$reactome_emapplot <- renderPlot({
     center <- input$center_reactome
     if (center == "jax") {
@@ -949,6 +1407,38 @@ server <- function(input, output) {
     } else {
       ucsf_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
       ucsf_plot[[4]]  # Return the plot object
+    }
+  })
+
+  output$jax_reactome_emapplot <- renderPlot({
+    center <- input$center_reactome
+    if (center =="all centers") {
+      reactome_plots <- readRDS("./rda_data/reactome_emmaplots.rda")
+      reactome_plots[[1]]
+    }
+  })
+
+  output$msk_reactome_emapplot <- renderPlot({
+    center <- input$center_reactome
+    if (center =="all centers") {
+      reactome_plots <- readRDS("./rda_data/reactome_emmaplots.rda")
+      reactome_plots[[2]]
+    }
+  })
+
+  output$nwu_reactome_emapplot <- renderPlot({
+    center <- input$center_reactome
+    if (center =="all centers") {
+      reactome_plots <- readRDS("./rda_data/reactome_emmaplots.rda")
+      reactome_plots[[3]]
+    }
+  })
+
+  output$ucsf_reactome_emapplot <- renderPlot({
+    center <- input$center_reactome
+    if (center =="all centers") {
+      reactome_plots <- readRDS("./rda_data/reactome_emmaplots.rda")
+      reactome_plots[[4]]
     }
   })
 
@@ -983,22 +1473,42 @@ server <- function(input, output) {
 
     threshold_value <- 0.1
 
+    sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+    if (sig_threshod_depmap_boxplot == "0.05") {
+      jax_plot_text <- cell_essentiality_jax$depmap_essential_05_label
+    } else if (sig_threshod_depmap_boxplot == "0.01") {
+      jax_plot_text <- cell_essentiality_jax$depmap_essential_1_label
+    }
+
+    sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+    if (sig_threshod_depmap_boxplot == "0.05") {
+      msk_plot_text <- cell_essentiality_msk$depmap_essential_05_label
+    } else if (sig_threshod_depmap_boxplot == "0.01") {
+      msk_plot_text <- cell_essentiality_msk$depmap_essential_1_label
+    }
+
+    sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+    if (sig_threshod_depmap_boxplot == "0.05") {
+      nwu_plot_text <- cell_essentiality_nwu$depmap_essential_05_label
+    } else if (sig_threshod_depmap_boxplot == "0.01") {
+      nwu_plot_text <- cell_essentiality_nwu$depmap_essential_1_label
+    }
+
+    sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+    if (sig_threshod_depmap_boxplot == "0.05") {
+      ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_05_label
+    } else if (sig_threshod_depmap_boxplot == "0.01") {
+      ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_1_label
+    }
+
     # MODIFY PLOT TEXT TO REFLECT THRESHOLD SET i.e. label will be like: essential (<0.01)
     if (center == "jax") {
       cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
 
-      sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-      if (sig_threshod_depmap_boxplot == "0.05") {
-        plot_text <- cell_essentiality_jax$depmap_essential_05_label
-      } else if (sig_threshod_depmap_boxplot == "0.01") {
-        plot_text <- cell_essentiality_jax$depmap_essential_1_label
-      }
-
-
       cell_essentiality_depmap_boxplot <- cell_essentiality_jax %>%
-        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "box",
+        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "violin", box = list(visible = T),
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_jax$mean_depmap_gene_effect_score,
-                                                      "\n", plot_text)) %>%
+                                                      "\n", jax_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
 
       cell_essentiality_centre_selected <- cell_essentiality_jax
@@ -1006,17 +1516,10 @@ server <- function(input, output) {
     } else if (center == "nwu") {
       cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
 
-      sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-      if (sig_threshod_depmap_boxplot == "0.05") {
-        plot_text <- cell_essentiality_nwu$depmap_essential_05_label
-      } else if (sig_threshod_depmap_boxplot == "0.01") {
-        plot_text <- cell_essentiality_nwu$depmap_essential_1_label
-      }
-
       cell_essentiality_depmap_boxplot <- cell_essentiality_nwu %>%
-        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "box",
+        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_nwu$mean_depmap_gene_effect_score,
-                                                      "\n", plot_text)) %>%
+                                                      "\n", nwu_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
 
       cell_essentiality_centre_selected <- cell_essentiality_nwu
@@ -1024,17 +1527,12 @@ server <- function(input, output) {
     } else if (center == "msk") {
       cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
 
-      sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-      if (sig_threshod_depmap_boxplot == "0.05") {
-        plot_text <- cell_essentiality_msk$depmap_essential_05_label
-      } else if (sig_threshod_depmap_boxplot == "0.01") {
-        plot_text <- cell_essentiality_msk$depmap_essential_1_label
-      }
+
 
       cell_essentiality_depmap_boxplot <- cell_essentiality_msk %>%
-        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "box",
+        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_msk$mean_depmap_gene_effect_score,
-                                                      "\n", plot_text)) %>%
+                                                      "\n", msk_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
 
       cell_essentiality_centre_selected <- cell_essentiality_msk
@@ -1044,34 +1542,52 @@ server <- function(input, output) {
 
       sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
       if (sig_threshod_depmap_boxplot == "0.05") {
-        plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
+        all_plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
       } else if (sig_threshod_depmap_boxplot == "0.01") {
-        plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
+        all_plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
       }
 
       cell_essentiality_depmap_boxplot <- cell_essentiality_all_morphic %>%
-        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "box",
+        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_all_morphic$mean_depmap_gene_effect_score,
-                                                      "\n", plot_text)) %>%
+                                                      "\n", all_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
+
+      cell_essentiality_centre_selected <- cell_essentiality_all_morphic
+
+    } else if (center == "all centers") {
+      ### PLOT_TEXT NEEDS MODIFYING
+      cell_essentiality_depmap_boxplot <- cell_essentiality_jax %>%
+        plot_ly(name = "JAX", y = ~mean_depmap_gene_effect_score, x = "JAX", type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_jax$mean_depmap_gene_effect_score,
+                                                      "\n", plot_text)) %>%
+        add_trace(name = 'MSK',
+                  data = cell_essentiality_msk,
+                  y = ~mean_depmap_gene_effect_score,
+                  x = "MSK", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id , "\nMean gene effect score :", cell_essentiality_msk$mean_depmap_gene_effect_score, "\n", plot_text)) %>%
+        add_trace(name = 'NWU',
+                  data = cell_essentiality_nwu,
+                  y = ~mean_depmap_gene_effect_score,
+                  x = "NWU", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id , "\nMean gene effect score :", cell_essentiality_nwu$mean_depmap_gene_effect_score, "\n", plot_text)) %>%
+        add_trace(name = 'UCSF',
+                  data = cell_essentiality_ucsf,
+                  y = ~mean_depmap_gene_effect_score,
+                  x = "UCSF", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id , "\nMean gene effect score :", cell_essentiality_ucsf$mean_depmap_gene_effect_score, "\n", plot_text))
+
 
       cell_essentiality_centre_selected <- cell_essentiality_all_morphic
 
     } else {
       cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
 
-      sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-      if (sig_threshod_depmap_boxplot == "0.05") {
-        plot_text <- cell_essentiality_ucsf$depmap_essential_05_label
-      } else if (sig_threshod_depmap_boxplot == "0.01") {
-        plot_text <- cell_essentiality_ucsf$depmap_essential_1_label
-      }
-
       cell_essentiality_depmap_boxplot <- cell_essentiality_ucsf %>%
-        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "box",
+        plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
                                                       "<br> Mean gene effect score :", cell_essentiality_ucsf$mean_depmap_gene_effect_score,
-                                                      "\n", plot_text)) %>%
+                                                      "\n", ucsf_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
       cell_essentiality_centre_selected <- cell_essentiality_ucsf
 
@@ -1090,9 +1606,7 @@ server <- function(input, output) {
 
     # Add protein coding genes trace if Checkbox is Checked
     if (input$compare_protein_coding_genes) {
-      # Code to generate graph2 when the checkbox is checked
-      # ...
-      # Your code here to generate graph2
+      # Code to generate all protein coding genes when the checkbox is checked
       cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
         add_trace(name = 'all protein coding genes',
                   data = cell_essentiality,
@@ -1137,7 +1651,7 @@ server <- function(input, output) {
     if (center == "jax") {
       cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_jax %>%
-        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Bayes factor :", cell_essentiality_jax$h1_mef_BF,
                                                       "\n", cell_essentiality_jax$h1_mef_essential_label)) %>%
         layout(shapes = list(hline(threshold_value)))
@@ -1145,7 +1659,7 @@ server <- function(input, output) {
     } else if (center == "nwu") {
       cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_nwu %>%
-        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Bayes factor :", cell_essentiality_nwu$h1_mef_BF,
                                                       "\n", cell_essentiality_nwu$h1_mef_essential_label)) %>%
         layout(shapes = list(hline(threshold_value)))
@@ -1153,7 +1667,7 @@ server <- function(input, output) {
     } else if (center == "msk") {
       cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_msk %>%
-        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Bayes factor :", cell_essentiality_msk$h1_mef_BF,
                                                       "\n", cell_essentiality_msk$h1_mef_essential_label)) %>%
         layout(shapes = list(hline(threshold_value)))
@@ -1161,7 +1675,7 @@ server <- function(input, output) {
     } else if (center == "all morphic") {
       cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_all_morphic %>%
-        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Bayes factor :", cell_essentiality_all_morphic$h1_mef_BF,
                                                       "\n", cell_essentiality_all_morphic$h1_mef_essential_label)) %>%
         layout(shapes = list(hline(threshold_value)))
@@ -1169,7 +1683,7 @@ server <- function(input, output) {
     } else {
       cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
       cell_essentiality_mef_boxplot <- cell_essentiality_ucsf %>%
-        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
                                                       "<br> Bayes factor :", cell_essentiality_ucsf$h1_mef_BF,
                                                       "\n", cell_essentiality_ucsf$h1_mef_essential_label)) %>%
@@ -1239,7 +1753,7 @@ server <- function(input, output) {
     if (center == "jax") {
       cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_jax %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Bayes factor :", cell_essentiality_jax$h1_laminin_BF,
                                                       "\n", cell_essentiality_jax$h1_laminin_essential_label)) %>%
         layout(shapes = list(hline(threshold_value)))
@@ -1247,7 +1761,7 @@ server <- function(input, output) {
     } else if (center == "nwu") {
       cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_nwu %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Bayes factor :", cell_essentiality_nwu$h1_laminin_BF,
                                                       "\n", cell_essentiality_nwu$h1_laminin_essential_label)) %>%
         layout(shapes = list(hline(threshold_value)))
@@ -1255,7 +1769,7 @@ server <- function(input, output) {
     } else if (center == "msk") {
       cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_msk %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Bayes factor :", cell_essentiality_msk$h1_laminin_BF,
                                                       "\n", cell_essentiality_msk$h1_laminin_essential_label)) %>%
         layout(shapes = list(hline(threshold_value)))
@@ -1263,7 +1777,7 @@ server <- function(input, output) {
     } else if (center == "all morphic") {
       cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_all_morphic %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Bayes factor :", cell_essentiality_all_morphic$h1_laminin_BF,
                                                       "\n", cell_essentiality_all_morphic$h1_laminin_essential_label)) %>%
         layout(shapes = list(hline(threshold_value)))
@@ -1271,7 +1785,7 @@ server <- function(input, output) {
     } else {
       cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
       cell_essentiality_laminin_boxplot <- cell_essentiality_ucsf %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "box",
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
                                                       "<br> Bayes factor :", cell_essentiality_ucsf$h1_laminin_BF,
                                                       "\n", cell_essentiality_ucsf$h1_laminin_essential_label)) %>%
@@ -1699,15 +2213,291 @@ server <- function(input, output) {
     datatable(data_info_tables[[10]], rownames = FALSE, class = "display nowrap cell-border",  options = list(dom = 't', paging = FALSE, searching = FALSE, ordering = FALSE, rownames = FALSE))
   })
 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # MORPHIC INFORMATION TAB
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
   output$morphic_description <- renderUI({
-    HTML("<p>The MorPhiC programme aims to develop a consistent catalog of molecular and cellular phenotypes for null alleles for every human gene by using in-vitro multicellular systems. The catalog will be made available for broad use by the biomedical community.</p>
-          <p>MorPhiC has three components:</p>
-          <ol>
-            <li>The Data Production Research and Development Centers (DPCs): Develop diverse systems and assays and explore and compare approaches to produce MorPhiC data at scale.</li>
-            <li>The Data Analysis and Validation Centers (DAVs): Analyse the data generated by DPCs to characterize its quality and utility for multiple purposes.</li>
-            <li>The Data Resource and Administrative Coordinating Center (DRACC): Coordinate the data to ensure FAIRness, storage, and distribution.</li>
-          </ol>")
+    HTML('
+    <h1>MorPhiC - Molecular Phenotypes of Null Alleles in Cells</h1>
+    <p>The MorPhiC programme aims to develop a consistent catalog of molecular and cellular phenotypes for null alleles for every human gene by using in-vitro multicellular systems. The catalog will be made available for broad use by the biomedical community.</p>
+    <p>MorPhiC has three components: the Data Production Research and Development Centers (DPCs), the Data Analysis and Validation Centers (DAVs) and the Data Resource and Administrative Coordinating Center (DRACC).</p>
+  ')
   })
+
+  output$jax_description <- renderUI({
+    HTML('
+    <p>Paul Robson, Ph.D. Jackson Laboratory, Farmington, Connecticut. JAX MorPhiC data production center.</p>
+  ')
+  })
+
+  output$msk_description <- renderUI({
+    HTML('
+    <p>Danwei Huangfu, Ph.D. Sloan-Kettering Institute for Cancer Research, New York City. Center for scalable knockout and multimodal phenotyping in genetically diverse human genomes.</p>
+  ')
+  })
+
+  output$nwu_description <- renderUI({
+    HTML('
+    <p>Mazhar Adli, Ph.D. Northwestern University Feinberg School of Medicine, Chicago. Molecular and cellular characterization of essential human genes.</p>
+  ')
+  })
+
+  output$ucsf_description <- renderUI({
+    HTML('
+    <p>Luke Gilbert, Ph.D. University of California, San Francisco. Spatial multiomic mapping of gene function with CRISPRoff.</p>
+  ')
+  })
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # TEXT ABOVE VISUALISATIONS
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  output$upset_text <- renderUI({
+    HTML("<div style='background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;'>
+         Intersections of Genes selected by respective Data Production Centers
+         </div>")
+  })
+
+  output$viability_text <- renderUI({
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;">
+        <p>International Mouse Phenotyping Consortium (IMPC) lethal lines Data:</p>
+        <p>Data source: <a href="http://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/release-19.1/results/" target="_blank">Mouse Viability and Phenotype Data</a></p>
+      </div>')
+  })
+
+  output$disease_text <- renderUI({
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;">
+         <p>Disease Data: OMIM (Mendelian disease) Genes Data &amp; Development Disorder Gene to Phenotype Data:</p>
+         <p>Data source: <a href="https://www.omim.org/" target="_blank">OMIM data</a></p>
+       </div>')
+
+  })
+
+  output$panther_text <- renderUI({
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;">
+          <p>PANTHER (Protein ANalysis THrough Evolutionary Relationships) protein-coding genes Data:</p>
+          <p>Data source: <a href="https://www.pantherdb.org/" target="_blank">PANTHERdb Data</a></p>
+          <ul>
+            <li>Family and Protein Class (supergrouping of protein families)</li>
+            <li>Subfamily (subgroup within the family phylogenetic tree)</li>
+          </ul>
+        </div>')
+
+  })
+
+  output$cell_essential_text <- renderUI({
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;">
+          <p>Cellular Core Essentiality Data:</p>
+          <p>Threshold (< -0.5)<p>
+          <p>Data source: <a href="https://depmap.org/portal/download/all/" target="_blank">DepMap 23Q2 CRISPR Gene effect Data</a></p>
+        </div>')
+
+  })
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # TABLES BELOW VISUALISATIONS
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  output$impc_data_table <- renderDT(server=FALSE,{
+    datatable(
+      app_data_table[,c(1:3, 8:12)],
+      plugins = "ellipsis",
+      extensions = 'Buttons',
+      class = "display nowrap",
+      #container = headers,
+      filter = "top",
+      rownames = FALSE,
+      options = list(
+        pageLength = 10,
+        lengthMenu = c(10, 25, 50, 100),
+        scrollX = TRUE,
+        searching = TRUE,
+        dom = 'Bfrtip',
+        buttons = list(
+          list(extend = "csv", text = "Download Full Table", filename = "Full_data",
+               exportOptions = list(
+                 modifier = list(page = "all"),
+                 orthogonal = "export"
+               )
+          )
+        ),
+        columnDefs = list(
+          list(
+            targets = "_all",
+            render = JS("$.fn.dataTable.render.ellipsis(17, false)")
+          )
+        )
+      )
+    )
+  })
+
+  output$omim_data_table <- renderDT(server=FALSE,{
+    datatable(
+      app_data_table[,c(1:3, 40:43)],
+      plugins = "ellipsis",
+      extensions = 'Buttons',
+      class = "display nowrap",
+      #container = headers,
+      filter = "top",
+      rownames = FALSE,
+      options = list(
+        pageLength = 10,
+        lengthMenu = c(10, 25, 50, 100),
+        scrollX = TRUE,
+        searching = TRUE,
+        dom = 'Bfrtip',
+        buttons = list(
+          list(extend = "csv", text = "Download Full Table", filename = "Full_data",
+               exportOptions = list(
+                 modifier = list(page = "all"),
+                 orthogonal = "export"
+               )
+          )
+        ),
+        columnDefs = list(
+          list(
+            targets = "_all",
+            render = JS("$.fn.dataTable.render.ellipsis(17, false)")
+          )
+        )
+      )
+    )
+  })
+
+  output$panther_data_table <- renderDT(server=FALSE,{
+    datatable(
+      app_data_table[,c(1:3, 50:54)],
+      plugins = "ellipsis",
+      extensions = 'Buttons',
+      class = "display nowrap",
+      #container = headers,
+      filter = "top",
+      rownames = FALSE,
+      options = list(
+        pageLength = 10,
+        lengthMenu = c(10, 25, 50, 100),
+        scrollX = TRUE,
+        searching = TRUE,
+        dom = 'Bfrtip',
+        buttons = list(
+          list(extend = "csv", text = "Download Full Table", filename = "Full_data",
+               exportOptions = list(
+                 modifier = list(page = "all"),
+                 orthogonal = "export"
+               )
+          )
+        ),
+        columnDefs = list(
+          list(
+            targets = "_all",
+            render = JS("$.fn.dataTable.render.ellipsis(17, false)")
+          )
+        )
+      )
+    )
+  })
+
+  output$cell_essentiality_data_table <- renderDT(server=FALSE,{
+    datatable(
+      app_data_table[,c(1:3, 13:35)],
+      plugins = "ellipsis",
+      extensions = 'Buttons',
+      class = "display nowrap",
+      #container = headers,
+      filter = "top",
+      rownames = FALSE,
+      options = list(
+        pageLength = 10,
+        lengthMenu = c(10, 25, 50, 100),
+        scrollX = TRUE,
+        searching = TRUE,
+        dom = 'Bfrtip',
+        buttons = list(
+          list(extend = "csv", text = "Download Full Table", filename = "Full_data",
+               exportOptions = list(
+                 modifier = list(page = "all"),
+                 orthogonal = "export"
+               )
+          )
+        ),
+        columnDefs = list(
+          list(
+            targets = "_all",
+            render = JS("$.fn.dataTable.render.ellipsis(17, false)")
+          )
+        )
+      )
+    )
+  })
+
+  # CHANGE TO: TABLE WITH DATA USED IN VISUALISATION ANALYSIS
+  output$go_data_table <- renderDT(server=FALSE,{
+    datatable(
+      app_data_table[,c(1:3, 44:49)],
+      plugins = "ellipsis",
+      extensions = 'Buttons',
+      class = "display nowrap",
+      #container = headers,
+      filter = "top",
+      rownames = FALSE,
+      options = list(
+        pageLength = 10,
+        lengthMenu = c(10, 25, 50, 100),
+        scrollX = TRUE,
+        searching = TRUE,
+        dom = 'Bfrtip',
+        buttons = list(
+          list(extend = "csv", text = "Download Full Table", filename = "Full_data",
+               exportOptions = list(
+                 modifier = list(page = "all"),
+                 orthogonal = "export"
+               )
+          )
+        ),
+        columnDefs = list(
+          list(
+            targets = "_all",
+            render = JS("$.fn.dataTable.render.ellipsis(17, false)")
+          )
+        )
+      )
+    )
+  })
+
+  # CHANGE TO: TABLE WITH DATA USED IN VISUALISATION ANALYSIS
+  output$reactome_data_table <- renderDT(server=FALSE,{
+    datatable(
+      app_data_table[,c(1:3, 55:56)],
+      plugins = "ellipsis",
+      extensions = 'Buttons',
+      class = "display nowrap",
+      #container = headers,
+      filter = "top",
+      rownames = FALSE,
+      options = list(
+        pageLength = 10,
+        lengthMenu = c(10, 25, 50, 100),
+        scrollX = TRUE,
+        searching = TRUE,
+        dom = 'Bfrtip',
+        buttons = list(
+          list(extend = "csv", text = "Download Full Table", filename = "Full_data",
+               exportOptions = list(
+                 modifier = list(page = "all"),
+                 orthogonal = "export"
+               )
+          )
+        ),
+        columnDefs = list(
+          list(
+            targets = "_all",
+            render = JS("$.fn.dataTable.render.ellipsis(17, false)")
+          )
+        )
+      )
+    )
+  })
+
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
