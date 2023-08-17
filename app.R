@@ -150,32 +150,26 @@ body <- dashboardBody(
               column(
                 width = 12,
                 box(
+                  width =12,
                   title = textOutput("gene_name_title"),
                   status = "info",
                   # Display invalid gene message if the gene is not valid
-                  uiOutput("invalid_gene_message")
+                  uiOutput("invalid_gene_message"),
+                  fluidRow(
+                    column(width = 6, uiOutput("centers_sumtab")),
+                    column(width = 6, uiOutput("gene_aliases_sumtab"))
+                  ),
+                  fluidRow(
+                    column(width = 6, uiOutput("omim_sumtab")),
+                    column(width = 6, uiOutput("gene_constraint_metrics_sumtab"))
+                  ),
+                  fluidRow(
+                    column(width = 6, uiOutput("panther_sumtab")),
+                    column(width = 6, uiOutput("viability_sumtab"))
+                  )
                 )
               ),
-              fluidRow(
-                column(width = 12,
-                       box(
-                         fluidRow(
-                           column(width = 6, uiOutput("centers_sumtab")),
-                           column(width = 6, uiOutput("omim_sumtab"))
-                         ),
-                         fluidRow(
-                           column(width = 6, uiOutput("omim_lethal_sumtab")),
-                           column(width = 6, uiOutput("viability_sumtab"))
-                         ),
-                         fluidRow(
-                           column(width = 6, uiOutput("cell_essential_sumtab")),
-                           column(width = 6, uiOutput("gene_constraint_metrics_sumtab"))
-                         ),
-                         title = NULL,
-                         status = "info"
-                       )
-                )
-              )
+
             )
           )
         )
@@ -190,8 +184,8 @@ body <- dashboardBody(
           collapsible = TRUE,
           collapsed = FALSE,
           fluidRow(
-            column(width = 4,
-                   checkboxGroupInput("data_sources", label = NULL,
+            column(width = 12,
+                   checkboxGroupInput("data_sources", label = NULL, inline = TRUE,
                                       choices = c("Gene Identifiers", "Data Production Centers", "IMPC Mouse Model Data",
                                                   "Gene Constraint Metrics", "Disease Data",
                                                   "Gene Ontology", "PANTHERdb Protein Data", "Reactome Pathway Data"),
@@ -495,6 +489,13 @@ body <- dashboardBody(
 
         tabPanel(HTML("Gene Onotology<br><span style='font-size: 14px;'>(Semantic Similarity Analysis)</span>"), id = "go_scatter_tab",
                  fluidRow(
+                   column(
+                     width = 9,
+                     uiOutput("go_text")
+                   )
+                 ),
+                 hr(),
+                 fluidRow(
                    conditionalPanel(
                      condition = "input.center_go != 'all centers'",
                      column(width = 9, plotlyOutput("go_scatter", height = "60vh"))
@@ -536,6 +537,13 @@ body <- dashboardBody(
         ),
 
         tabPanel(HTML("Reactome<br><span style='font-size: 14px;'>(Enrichment Analysis)</span>"), id = "reactome_emapplot_tab",
+                 fluidRow(
+                   column(
+                     width = 9,
+                     uiOutput("reactome_text")
+                   )
+                 ),
+                 hr(),
                  fluidRow(
                    conditionalPanel(
                      condition = "input.center_reactome != 'all centers'",
@@ -622,6 +630,13 @@ body <- dashboardBody(
                  fluidRow(
                    column(
                      width = 9,
+                     uiOutput("cell_line_text")
+                   )
+                 ),
+                 hr(),
+                 fluidRow(
+                   column(
+                     width = 9,
                      fluidRow(
                        column(12, plotlyOutput("cell_essentiality_boxplot_depmap", height = "40vh")) # Adjust height as needed
                      ),
@@ -652,8 +667,8 @@ body <- dashboardBody(
                        selectInput(
                          "cell_essential_depmap_significance_threshold",
                          "Select significance threshold for Cell essentiality DepMap data:",
-                         choices = c("0.05", "0.01"),
-                         selected = "0.05"  # Set the default selected option
+                         choices = c("-0.5", "-1"),
+                         selected = "-0.5"  # Set the default selected option
                        ),
                        textInput("search_hgnc_id", "Search Gene:", placeholder = "HGNC:3239"),
                        checkboxInput(inputId = "compare_protein_coding_genes", label = "Compare to all protein coding genes")
@@ -665,6 +680,13 @@ body <- dashboardBody(
 
         #### NEEDS TO BE: oe lof, oe mis, shet rgc-me, shet post, domino, scones
         tabPanel(HTML("Cellular Core Essentiallity<br><span style='font-size: 14px;'>(Sequencing Data)</span>"), id = "gene_constraint_metrics_tab",
+                 fluidRow(
+                   column(
+                     width = 9,
+                     uiOutput("cell_sequencing_text")
+                   )
+                 ),
+                 hr(),
                  fluidRow(
                    column(
                      width = 9,
@@ -784,7 +806,7 @@ server <- function(input, output) {
         th('Gene Symbol'), th('HGNC ID'), th('MGI ID'),
         th('JAX'), th('MSK'), th('NWU'), th('UCSF'),
         th('Viability'), th('One2one ortholog'), th('Phenotypes homozygote'), th('Phenotypes heterozygote'), th('Phenotypes hemizygote'),
-        th('Mean gene effect score'), th('Cellular core essential (< -0.5)'), th('Cellular core essential (< -1)'), th('Bayes Factor'), th('False Discovery Rate'),  th('Essential/Non-essential'), th('Bayes Factor'), th('False Discovery Rate'),  th('Essential/Non-essential'), th('Score'), th('Lower score'), th('Upper score'), th('Score'), th('Lower score'), th('Upper score'), th('Mean'), th('Lower'), th('Upper'), th('Mean'), th('Lower 95'), th('Upper 95'), th('Score'), th('Score'),
+        th('Mean gene effect score'), th('Cellular core essential (< -0.5)'), th('Cellular core essential (< -1)'), th('Bayes Factor'), th('False Discovery Rate'),  th('Core essential/Core non-essential'), th('Bayes Factor'), th('False Discovery Rate'),  th('Core essential/Core non-essential'), th('Score'), th('Lower score'), th('Upper score'), th('Score'), th('Lower score'), th('Upper score'), th('Mean'), th('Lower'), th('Upper'), th('Mean'), th('Lower 95'), th('Upper 95'), th('Score'), th('Score'),
         th('Disease name'), th('Confidence category'), th('Allelic requirement'), th('Organ specificity'),
         th('Phenotype'), th('Mode of inheritance'), th('Gene lethality'), th('Earliest lethality category'),
         th('ID'), th('Term'), th('ID'), th('Term'), th('ID'), th('Term'),
@@ -977,33 +999,47 @@ server <- function(input, output) {
         input_type <- detect_input_type(toupper(input$gene_search))
         select_row <- app_data_table[
           app_data_table[[input_type]] == toupper(input$gene_search), ]
+
+        viability <- select_row$viability_impc
+        ortholog <- select_row$one2one_ortholog
+        phenotype_het <- select_row$impc_phenotypes_heterozygote
+        phenotype_homo <- select_row$impc_phenotypes_homozygote
+        # WORKING BUT UGLY
+        # viability_sumtab_data <- paste(
+        #   "<p>one2one orthologue:", ortholog, "</p>",
+        #   "<p>viability:", viability, "</p>",
+        #   "<p>heterozygote phenotype:", phenotype_het, "</p>",
+        #   "<p>homozygote phenotype:", phenotype_homo, "</p>",
+        #   sep = ""
+        # )
+        viability_sumtab_data <- viability
+
         valueBox(
-          "IMPC viability",
-          select_row$viability_impc,
-          icon = icon("plus-minus"),
+          value = "IMPC Mouse Data",
+          subtitle = viability_sumtab_data,
+          icon = icon("shield-cat"),
           color = "blue",
-          width = 6
         )
       })
     }
   })
 
-  output$cell_essential_sumtab <- renderUI({
-    if (validGene()) {
-      renderValueBox({
-        input_type <- detect_input_type(toupper(input$gene_search))
-        select_row <- app_data_table[
-          app_data_table[[input_type]] == toupper(input$gene_search), ]
-        valueBox(
-          "Cellular essential (DepMap 0.05)",
-          select_row$depmap_essential_05_label,
-          icon = icon("heart-pulse"),
-          color = "blue",
-          width = 6
-        )
-      })
-    }
-  })
+  # output$cell_essential_sumtab <- renderUI({
+  #   if (validGene()) {
+  #     renderValueBox({
+  #       input_type <- detect_input_type(toupper(input$gene_search))
+  #       select_row <- app_data_table[
+  #         app_data_table[[input_type]] == toupper(input$gene_search), ]
+  #       valueBox(
+  #         "Cellular Core Essential",
+  #         #HTML("DPCs Genes of Interest<br><span style='font-size: 14px;'>&nbsp;</span>"),
+  #         select_row$depmap_essential_1,
+  #         icon = icon("heart-pulse"),
+  #         color = "blue",
+  #       )
+  #     })
+  #   }
+  # })
 
 
 
@@ -1021,11 +1057,10 @@ server <- function(input, output) {
           }
         }
         valueBox(
-          "Centers with gene",
+          "DPCs with gene",
           gene_list_result,
           icon = icon("vials"),
           color = "blue",
-          width = 6
         )
       })
     }
@@ -1038,29 +1073,41 @@ server <- function(input, output) {
         input_type <- detect_input_type(toupper(input$gene_search))
         select_row <- app_data_table[
           app_data_table[[input_type]] == toupper(input$gene_search), ]
+
+        omim_phenotype <- select_row$omim_phenotype
+        omim_moi <- select_row$omim_mode_of_inheritance
+        omim_lethailty <- select_row$omim_gene_lethality
+        organ <- select_row$ddd_organ_specificity
+
+        disease_sumtab_data <- paste(
+          omim_phenotype,
+          omim_moi,
+          omim_lethailty,
+          organ,
+          sep = "<br>"
+        )
+
         valueBox(
-          "Clinical phenotype",
-          select_row$omim_phenotype_molecular_basis_known,
+          "Disease Data",
+          HTML(disease_sumtab_data),
           icon = icon("hand-dots"),
           color = "blue",
-          width = 6
         )
       })
     }
   })
 
-  output$omim_lethal_sumtab <- renderUI({
+  output$gene_aliases_sumtab <- renderUI({
     if (validGene()) {
       renderValueBox({
         input_type <- detect_input_type(toupper(input$gene_search))
         select_row <- app_data_table[
           app_data_table[[input_type]] == toupper(input$gene_search), ]
         valueBox(
-          "OMIM gene lethality",
-          select_row$omim_gene_lethality,
-          icon = icon("skull-crossbones"),
+          "Gene synonyms",
+          "under construction",
+          icon = icon("hammer"),
           color = "blue",
-          width = 6
         )
       })
     }
@@ -1073,20 +1120,52 @@ server <- function(input, output) {
         select_row <- app_data_table[
           app_data_table[[input_type]] == toupper(input$gene_search), ]
 
-        metrics <- list()
+        essential_label <- select_row$depmap_essential_1
         shet_rgcme_mean <- as.numeric(select_row$shet_rgcme_mean)
         oe_lof_upper <- as.numeric(select_row$oe_lof_upper)
+        #
+        # metrics <- append(metrics, paste("RGCME Mean:", signif(shet_rgcme_mean, 3)))
+        # metrics <- append(metrics, paste("OE LOF Upper:", signif(oe_lof_upper, 3)))
 
-        metrics <- append(metrics, paste("RGCME Mean:", signif(shet_rgcme_mean, 3)))
-        metrics <- append(metrics, paste("OE LOF Upper:", signif(oe_lof_upper, 3)))
-
+        constraint_sumtab_data <- paste(
+          "<p>Cellular core essential: ", essential_label, "</p>",
+          "<p>Shet RGC-ME mean: ", shet_rgcme_mean, "</p>",
+          "<p>gnomAD o/e lof upper :", oe_lof_upper, "</p>",
+          sep = ""
+        )
 
         valueBox(
           "Gene constraint metrics",
-          metrics,
+          HTML(constraint_sumtab_data),
           icon = icon("flask"),
           color = "blue",
-          width = 6
+        )
+      })
+    }
+  })
+
+  output$panther_sumtab <- renderUI({
+    if (validGene()) {
+      renderValueBox({
+        input_type <- detect_input_type(toupper(input$gene_search))
+        select_row <- app_data_table[
+          app_data_table[[input_type]] == toupper(input$gene_search), ]
+
+        class_term <- select_row$CLASS_TERM
+        family_term <- select_row$FAMILY_TERM
+
+
+        panther_sumtab_data <- paste(
+          class_term,
+          family_term,
+          sep = "<br>"
+        )
+
+        valueBox(
+          "Protein data",
+          HTML(panther_sumtab_data),
+          icon = icon("certificate"),
+          color = "blue",
         )
       })
     }
@@ -1452,6 +1531,11 @@ server <- function(input, output) {
 
     # Load cell_essentiality RDS dataframe
     cell_essentiality <- readRDS("./rda_data/cell_essentiality.rda")
+    cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
+    cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
+    cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
+    cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
+    cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
 
     # Load hgnc ID input
     user_input_hgnc_id <- input$search_hgnc_id
@@ -1471,37 +1555,49 @@ server <- function(input, output) {
       )
     }
 
-    threshold_value <- 0.1
-
     sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-    if (sig_threshod_depmap_boxplot == "0.05") {
+    if (sig_threshod_depmap_boxplot == "-0.5") {
       jax_plot_text <- cell_essentiality_jax$depmap_essential_05_label
-    } else if (sig_threshod_depmap_boxplot == "0.01") {
-      jax_plot_text <- cell_essentiality_jax$depmap_essential_1_label
-    }
-
-    sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-    if (sig_threshod_depmap_boxplot == "0.05") {
       msk_plot_text <- cell_essentiality_msk$depmap_essential_05_label
-    } else if (sig_threshod_depmap_boxplot == "0.01") {
-      msk_plot_text <- cell_essentiality_msk$depmap_essential_1_label
-    }
-
-    sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-    if (sig_threshod_depmap_boxplot == "0.05") {
       nwu_plot_text <- cell_essentiality_nwu$depmap_essential_05_label
-    } else if (sig_threshod_depmap_boxplot == "0.01") {
-      nwu_plot_text <- cell_essentiality_nwu$depmap_essential_1_label
-    }
-
-    sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-    if (sig_threshod_depmap_boxplot == "0.05") {
       ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_05_label
-    } else if (sig_threshod_depmap_boxplot == "0.01") {
+      all_plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
+      plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
+
+      threshold_value <- -0.5
+    } else if (sig_threshod_depmap_boxplot == "-1") {
+      jax_plot_text <- cell_essentiality_jax$depmap_essential_1_label
+      msk_plot_text <- cell_essentiality_msk$depmap_essential_1_label
+      nwu_plot_text <- cell_essentiality_nwu$depmap_essential_1_label
       ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_1_label
+      all_plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
+      plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
+
+      threshold_value <- -1
     }
 
-    # MODIFY PLOT TEXT TO REFLECT THRESHOLD SET i.e. label will be like: essential (<0.01)
+    # sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+    # if (sig_threshod_depmap_boxplot == "-0.5") {
+    #   msk_plot_text <- cell_essentiality_msk$depmap_essential_05_label
+    # } else if (sig_threshod_depmap_boxplot == "-1") {
+    #   msk_plot_text <- cell_essentiality_msk$depmap_essential_1_label
+    # }
+    #
+    # sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+    # if (sig_threshod_depmap_boxplot == "-0.5") {
+    #   nwu_plot_text <- cell_essentiality_nwu$depmap_essential_05_label
+    # } else if (sig_threshod_depmap_boxplot == "-1") {
+    #   nwu_plot_text <- cell_essentiality_nwu$depmap_essential_1_label
+    # }
+    #
+    # sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+    # if (sig_threshod_depmap_boxplot == "-0.5") {
+    #   ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_05_label
+    # } else if (sig_threshod_depmap_boxplot == "-1") {
+    #   ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_1_label
+    # }
+
+    # MODIFY PLOT TEXT TO REFLECT THRESHOLD SET i.e. label will be like: essential (<-1)
     if (center == "jax") {
       cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
 
@@ -1540,12 +1636,12 @@ server <- function(input, output) {
     } else if (center == "all morphic") {
       cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
 
-      sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-      if (sig_threshod_depmap_boxplot == "0.05") {
-        all_plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
-      } else if (sig_threshod_depmap_boxplot == "0.01") {
-        all_plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
-      }
+      # sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+      # if (sig_threshod_depmap_boxplot == "-0.5") {
+      #   all_plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
+      # } else if (sig_threshod_depmap_boxplot == "-1") {
+      #   all_plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
+      # }
 
       cell_essentiality_depmap_boxplot <- cell_essentiality_all_morphic %>%
         plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "violin",
@@ -1560,25 +1656,25 @@ server <- function(input, output) {
       cell_essentiality_depmap_boxplot <- cell_essentiality_jax %>%
         plot_ly(name = "JAX", y = ~mean_depmap_gene_effect_score, x = "JAX", type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_jax$mean_depmap_gene_effect_score,
-                                                      "\n", plot_text)) %>%
+                                                      "\n", jax_plot_text)) %>%
         add_trace(name = 'MSK',
                   data = cell_essentiality_msk,
                   y = ~mean_depmap_gene_effect_score,
                   x = "MSK", hoverinfo = "text",
-                  hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id , "\nMean gene effect score :", cell_essentiality_msk$mean_depmap_gene_effect_score, "\n", plot_text)) %>%
+                  hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id , "\nMean gene effect score :", cell_essentiality_msk$mean_depmap_gene_effect_score, "\n", msk_plot_text)) %>%
         add_trace(name = 'NWU',
                   data = cell_essentiality_nwu,
                   y = ~mean_depmap_gene_effect_score,
                   x = "NWU", hoverinfo = "text",
-                  hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id , "\nMean gene effect score :", cell_essentiality_nwu$mean_depmap_gene_effect_score, "\n", plot_text)) %>%
+                  hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id , "\nMean gene effect score :", cell_essentiality_nwu$mean_depmap_gene_effect_score, "\n", nwu_plot_text)) %>%
         add_trace(name = 'UCSF',
                   data = cell_essentiality_ucsf,
                   y = ~mean_depmap_gene_effect_score,
                   x = "UCSF", hoverinfo = "text",
-                  hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id , "\nMean gene effect score :", cell_essentiality_ucsf$mean_depmap_gene_effect_score, "\n", plot_text))
+                  hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id , "\nMean gene effect score :", cell_essentiality_ucsf$mean_depmap_gene_effect_score, "\n", ucsf_plot_text))
 
 
-      cell_essentiality_centre_selected <- cell_essentiality_all_morphic
+      cell_essentiality_centre_selected <- cell_essentiality_depmap_boxplot
 
     } else {
       cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
@@ -2253,28 +2349,28 @@ server <- function(input, output) {
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   output$upset_text <- renderUI({
-    HTML("<div style='background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;'>
+    HTML("<div style='background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;'>
          Intersections of Genes selected by respective Data Production Centers
          </div>")
   })
 
   output$viability_text <- renderUI({
-    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;">
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;">
         <p>International Mouse Phenotyping Consortium (IMPC) lethal lines Data:</p>
         <p>Data source: <a href="http://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/release-19.1/results/" target="_blank">Mouse Viability and Phenotype Data</a></p>
       </div>')
   })
 
   output$disease_text <- renderUI({
-    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;">
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;">
          <p>Disease Data: OMIM (Mendelian disease) Genes Data &amp; Development Disorder Gene to Phenotype Data:</p>
-         <p>Data source: <a href="https://www.omim.org/" target="_blank">OMIM data</a></p>
+         <p>Data source: <a href="https://www.omim.org/" target="_blank">OMIM Data</a></p>
        </div>')
 
   })
 
   output$panther_text <- renderUI({
-    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;">
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;">
           <p>PANTHER (Protein ANalysis THrough Evolutionary Relationships) protein-coding genes Data:</p>
           <p>Data source: <a href="https://www.pantherdb.org/" target="_blank">PANTHERdb Data</a></p>
           <ul>
@@ -2286,12 +2382,59 @@ server <- function(input, output) {
   })
 
   output$cell_essential_text <- renderUI({
-    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 18px;">
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;">
           <p>Cellular Core Essentiality Data:</p>
           <p>Threshold (< -0.5)<p>
           <p>Data source: <a href="https://depmap.org/portal/download/all/" target="_blank">DepMap 23Q2 CRISPR Gene effect Data</a></p>
         </div>')
 
+  })
+
+  output$go_text <- renderUI({
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;">
+          <p>Gene Ontology-based semantic similarity  Data:</p>
+          <p>Data source: <a href="http://geneontology.org/docs/download-ontology/" target="_blank">Gene Ontology Data</a></p>
+        </div>')
+
+  })
+
+  output$reactome_text <- renderUI({
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;">
+          <p>Reactome Pathway Data:</p>
+          <p>Data source: <a href="https://reactome.org/" target="_blank">Reactome Data</a></p>
+        </div>')
+
+  })
+
+  output$cell_line_text <- renderUI({
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;">
+          <p>Cellular Core Essentiality from Cell lines Data:</p>
+          <p>Data sources:</p>
+          <ul>
+            <li><a href="https://depmap.org/portal/download/all/" target="_blank">DepMap 23Q2 CRISPR Gene effect Data</a></li>
+            <li><a href="https://www.sciencedirect.com/science/article/pii/S2211124719302128" target="_blank">Mair et al 2019: MEF and Laminin cultured cell lines</a></li>
+          </ul>
+          <p>For gene effect, a score less than -0.5 represents depletion in most cell lines, while less than -1 represents strong killing.</p>
+        </div>')
+
+    # WHAT ABOUT EG THRESHOLDS FOR MEF AND LAMININ? e.g. BF > 5 FDR < 1%
+
+  })
+
+  output$cell_sequencing_text <- renderUI({
+    HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;">
+          <p>Cellular Core Essentiality from Sequencing Data:</p>
+          <p>Data sources:</p>
+          <ul>
+            <li><a href="https://gnomad.broadinstitute.org/downloads" target="_blank">gnomAD</a></li>
+            <li><a href="https://pubmed.ncbi.nlm.nih.gov/37214792/" target="_blank">Sun et al 2023: Shet RGC-ME mean</a></li>
+            <li><a href="https://www.biorxiv.org/content/10.1101/2023.05.19.541520v1" target="_blank">Zeng et al 2023: Shet posterior mean</a></li>
+          </ul>
+          <p>For gnomAD loss-of-function observed/expected upper bound fraction (suggested threshold for highly intolerant genes: oe_lof_upper < 0.35)</p>
+          <p>For Shet RGC-ME mean, the suggested threshold for highly intolerant genes shet > 0.075)</p>
+          <p>For Shet posterior mean, the suggested threshold for highly intolerant genes shet > 0.1)</p>
+
+        </div>')
   })
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
