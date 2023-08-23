@@ -1,4 +1,7 @@
-if (!require(shiny)) install.packages(c("shiny", "shinydashboard", "DT", "plotly", "UpSetR", "ggplot2"))
+if (!require(shiny)) install.packages(c("shiny", "shinydashboard", "DT", "plotly", "UpSetR", "ggplot2", "BiocManager"))
+# install.packages("BiocManager")
+# BiocManager::install(version = "3.17")
+library(BiocManager)
 library(shiny)
 library(shinydashboard)
 library(DT)
@@ -7,65 +10,23 @@ library(UpSetR)
 library(ggplot2)
 library(rrvgo)
 library(shinyjs)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# LOAD TABLES
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# LOAD TABLES-----------------------------------------------------------------------------------
 
 app_data_table <- readRDS("./rda_data/app_data_table.rda")
 #colnames(app_data_table) <- gsub("_", " ", colnames(app_data_table))
 data_info_tables <- readRDS("./rda_data/data_info_tables.rda")
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# APP CODE -----------------------------------------------------------------------------------
 
-# APP CODE...
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# UI - HEADER
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## UI - HEADER -----------------------------------------------------------------------------------
 header <- dashboardHeader(
   title = tags$a(href='https://morphic.bio/',
                 tags$img(src='morphiclogo.png',style = "margin-left: -20px;"),
                 )
-  # tags$li(
-  #   class = "dropdown",
-  #   tags$style(HTML("
-  #         .navbar-custom-menu{float:left !important;}
-  #         .sidebar-menu{display:flex;align-items:baseline;}
-  #         "))
-  # ),
-
-  # tags$style(HTML("
-  #     .navbar-custom {
-  #       background-color: #001F3F; /* Navy blue */
-  #     }
-  #     .navbar-custom .navbar-nav > li > a {
-  #       color: #FFFFFF; /* White text */
-  #     }
-  #     .navbar-custom .navbar-nav > li > a:hover {
-  #       color: #87CEEB; /* Lighter blue on hover */
-  #     }
-  #     .navbar-custom .navbar-nav > .active > a,
-  #     .navbar-custom .navbar-nav > .active > a:focus,
-  #     .navbar-custom .navbar-nav > .active > a:hover {
-  #       background-color: #002855; /* Darker blue when selected */
-  #     }
-  #   ")),
-  # tags$li(
-  #   class = "dropdown",
-  #   sidebarMenu(
-  #     id = "tablist",
-  #     menuItem("MorPhiC Genes", tabName = "genes", icon = icon("table")),
-  #     menuItem("Visualisations", tabName = "visualisations", icon = icon("chart-bar")),
-  #     menuItem("Data info", tabName = "data_info", icon = icon("info")),
-  #     menuItem("About MorPhiC", tabName = "about_morphic", icon = icon("magnifying-glass"))
-  #   )
-  # )
 )
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# UI - SIDEBAR
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## UI - SIDEBAR-----------------------------------------------------------------------------------
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("MorPhiC Genes", tabName = "genes", icon = icon("table")),
@@ -77,9 +38,7 @@ sidebar <- dashboardSidebar(
   # disable = TRUE
 )
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# UI - BODY
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## UI - BODY-----------------------------------------------------------------------------------
 body <- dashboardBody(
   fillPage = TRUE,
   # tags$head(tags$style(HTML('
@@ -131,9 +90,7 @@ body <- dashboardBody(
   #                               '))),
   tabItems(
     tabItem(
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      # GENE TABLE
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      ## GENE TABLE-----------------------------------------------------------------------------------
 
       tabName = "genes",
       fluidRow(
@@ -204,9 +161,8 @@ body <- dashboardBody(
       ),
     ),
     tabItem(
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      # DATA INFORMATION TAB
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      ##DATA INFORMATION TAB-----------------------------------------------------------------------------------
+
 
       tabName = "data_info",
       tags$div(class = "banner",
@@ -244,9 +200,7 @@ body <- dashboardBody(
       )
     ),
     tabItem(
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      # ABOUT MORPHIC TAB
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # ABOUT MORPHIC TAB-----------------------------------------------------------------------------------
 
       tabName = "about_morphic",
       # fluidRow(
@@ -310,9 +264,7 @@ body <- dashboardBody(
         )
       )
       ),
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # DATA VISUALISATIONS TAB
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ## DATA VISUALISATIONS TAB-----------------------------------------------------------------------------------
     tabItem(
       tabName = "visualisations",
       ##### PUT IN COLUMN OF WIDTH 9
@@ -498,14 +450,14 @@ body <- dashboardBody(
                  fluidRow(
                    conditionalPanel(
                      condition = "input.center_go != 'all centers'",
-                     column(width = 9, plotlyOutput("go_scatter", height = "60vh"))
+                     column(width = 9, div(style='overflow-x: scroll', plotlyOutput("go_scatter", height = "60vh")))
                    ),
                    conditionalPanel(
                      condition = "input.center_go == 'all centers'",
                      column( width = 9,
                              fluidRow(width = 12,
                                       splitLayout(cellWidths = c("50%", "50%"),
-                                                  plotlyOutput("go_jax_plot"), plotlyOutput("go_msk_plot"))),
+                                                  div(style='overflow-x: scroll', plotlyOutput("go_jax_plot")), plotlyOutput("go_msk_plot"))),
                              fluidRow(width = 12,
                                       splitLayout(cellWidths = c("50%", "50%"),
                                                   plotlyOutput("go_nwu_plot"), plotlyOutput("go_ucsf_plot")))
@@ -585,46 +537,6 @@ body <- dashboardBody(
                  )
         ),
 
-        # tabPanel("Cell essentiallity (boxplots)", id = "cell_essentiality_boxplots_tab",
-        #          column(
-        #            width = 9,
-        #            fluidRow(
-        #              column(12, plotlyOutput("cell_essentiality_boxplot_depmap", height = "40vh")) # Adjust height as needed
-        #            ),
-        #            hr(),
-        #            fluidRow(
-        #              column(12, plotlyOutput("cell_essentiality_boxplot_mef", height = "40vh"))    # Adjust height as needed
-        #            ),
-        #            hr(),
-        #            fluidRow(
-        #              column(12, plotlyOutput("cell_essentiality_boxplot_laminin", height = "40vh"))    # Adjust height as needed
-        #            ),
-        #            hr()
-        #
-        #          ),
-        #          column(
-        #            width = 3,
-        #            box(
-        #              width = 12,
-        #              title = "Options",
-        #              status = "primary",
-        #              selectInput(
-        #                "center_cell_essentiality_boxplots",
-        #                "Select center gene list:",
-        #                choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
-        #                selected = "all morphic"  # Set the default selected option
-        #              ),
-        #              selectInput(
-        #                "cell_essential_depmap_significance_threshold",
-        #                "Select significance threshold for Cell essentiality DepMap data:",
-        #                choices = c("0.05", "0.01"),
-        #                selected = "0.05"  # Set the default selected option
-        #              ),
-        #              textInput("search_hgnc_id", "Search Gene:", placeholder = "HGNC:3239"),
-        #              checkboxInput(inputId = "compare_protein_coding_genes", label = "Compare to all protein coding genes")
-        #            )
-        #          )
-        # ),
 
         tabPanel(HTML("Cellular Core Essentiallity<br><span style='font-size: 14px;'>(Cell Line Data)</span>"), id = "cell_essentiality_boxplots_tab",
                  fluidRow(
@@ -670,7 +582,7 @@ body <- dashboardBody(
                          choices = c("-0.5", "-1"),
                          selected = "-0.5"  # Set the default selected option
                        ),
-                       textInput("search_hgnc_id", "Search Gene:", placeholder = "HGNC:3239"),
+                       textInput("search_hgnc_id_cell", "Search Gene:", placeholder = "HGNC:3239"),
                        checkboxInput(inputId = "compare_protein_coding_genes", label = "Compare to all protein coding genes")
                      )
                    )
@@ -690,11 +602,18 @@ body <- dashboardBody(
                  fluidRow(
                    column(
                      width = 9,
-                     fluidRow(column(12, plotlyOutput("gene_constraint_mean_shet", height = "40vh"))),
+                     fluidRow(column(12, plotlyOutput("gene_constraint_oe_lof", height = "40vh"))),
                      hr(),
                      fluidRow(column(12, plotlyOutput("gene_constraint_oe_mis", height = "40vh"))),
                      hr(),
-                     fluidRow(column(12, plotlyOutput("gene_constraint_domino", height = "40vh")))
+                     fluidRow(column(12, plotlyOutput("gene_constraint_shet_rgcme", height = "40vh"))),
+                     hr(),
+                     fluidRow(column(12, plotlyOutput("gene_constraint_shet_posterior", height = "40vh"))),
+                     hr(),
+                     fluidRow(column(12, plotlyOutput("gene_constraint_domino", height = "40vh"))),
+                     hr(),
+                     fluidRow(column(12, plotlyOutput("gene_constraint_scones", height = "40vh"))),
+                     hr(),
                    ),
                    column(
                      width = 3,
@@ -703,15 +622,13 @@ body <- dashboardBody(
                        title = "Options",
                        status = "primary",
                        selectInput(
-                         "center",
+                         "center_gene_constraint_seq",
                          "Select center gene list:",
-                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf"),
+                         choices = c("all morphic", "jax", "msk", "nwu", "ucsf", 'all centers'),
                          selected = "all morphic"  # Set the default selected option
                        ),
-                       sliderInput("bins", label = h4("Specified Bin Size"),
-                                   min = 0.01, max = 0.1, value = 0.05, step = 0.01
-                       ),
-                       checkboxInput(inputId = "compare_protein_coding_genes_gene_constraint", label = "Compare to all protein coding genes")
+                       textInput("search_hgnc_id_seq", "Search Gene:", placeholder = "HGNC:3239"),
+                       checkboxInput(inputId = "compare_protein_coding_genes_gene_constraint_seq", label = "Compare to all protein coding genes")
                      )
                    )
                  )
@@ -725,21 +642,14 @@ body <- dashboardBody(
   )
 )
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# DEFINE UI
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# ui <- dashboardPage(header, sidebar, body)
+## DEFINE UI-----------------------------------------------------------------------------------
 ui <- dashboardPage(header, sidebar, body)
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# DEFINE SERVER
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## DEFINE SERVER-----------------------------------------------------------------------------------
 server <- function(input, output) {
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # FILTER TABLE BASED ON SEARCH
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # FILTER TABLE BASED ON SEARCH-----------------------------------------------------------------------------------
 
   # Reactive expression to filter data based on gene_search input
   filtered_data <- reactive({
@@ -772,9 +682,7 @@ server <- function(input, output) {
     data_subset
   })
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # RENDER TABLE WITH HEADERS
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #RENDER TABLE WITH HEADERS-----------------------------------------------------------------------------------
 
   headers = htmltools::withTags(table(
     class = 'display',
@@ -879,69 +787,9 @@ server <- function(input, output) {
       )
     })
   })
-  #Render the DT table
-  # observeEvent(input$show_columns, {
-  #   # Update the value of x based on the checkbox input
-  #   if (input$show_columns) {
-  #     hidden_columns <- c(54:55)
-  #
-  #     output$genes_table <- renderDT({
-  #       datatable(
-  #         filtered_data(),
-  #         plugins = "ellipsis",
-  #         class = "display nowrap cell-border",
-  #         container = headers,
-  #         filter = "top",
-  #         rownames = FALSE,
-  #         options = list(
-  #           pageLength = 10,  # Number of rows displayed per page
-  #           lengthMenu = c(10, 25, 50, 100),  # Choose rows per page options
-  #           scrollX = TRUE,
-  #           searching = TRUE,
-  #           columnDefs = list(
-  #             list(
-  #               targets = hidden_columns,
-  #               visible = FALSE
-  #             ),
-  #             list(
-  #               targets = "_all",
-  #               render = JS("$.fn.dataTable.render.ellipsis( 17, false )")
-  #             )
-  #           )
-  #         )
-  #       )
-  #     })
-  #   } else {
-  #     output$genes_table <- renderDT({
-  #       datatable(
-  #         filtered_data(),
-  #         plugins = "ellipsis",
-  #         class = "display nowrap cell-border",
-  #         container = headers,
-  #         filter = "top",
-  #         rownames = FALSE,
-  #         options = list(
-  #           pageLength = 10,  # Number of rows displayed per page
-  #           lengthMenu = c(10, 25, 50, 100),  # Choose rows per page options
-  #           scrollX = TRUE,
-  #           searching = TRUE,
-  #           columnDefs = list(
-  #             list(
-  #               targets = "_all",
-  #               render = JS("$.fn.dataTable.render.ellipsis( 17, false )")
-  #             )
-  #           )
-  #         )
-  #       )
-  #     })
-  #
-  #   }
-  # })
 
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # GENE CARDS
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #  # GENE CARDS-----------------------------------------------------------------------------------
 
   # gene_name = searched gene
   gene_name <- reactive({
@@ -1004,14 +852,7 @@ server <- function(input, output) {
         ortholog <- select_row$one2one_ortholog
         phenotype_het <- select_row$impc_phenotypes_heterozygote
         phenotype_homo <- select_row$impc_phenotypes_homozygote
-        # WORKING BUT UGLY
-        # viability_sumtab_data <- paste(
-        #   "<p>one2one orthologue:", ortholog, "</p>",
-        #   "<p>viability:", viability, "</p>",
-        #   "<p>heterozygote phenotype:", phenotype_het, "</p>",
-        #   "<p>homozygote phenotype:", phenotype_homo, "</p>",
-        #   sep = ""
-        # )
+
         viability_sumtab_data <- viability
 
         valueBox(
@@ -1023,24 +864,6 @@ server <- function(input, output) {
       })
     }
   })
-
-  # output$cell_essential_sumtab <- renderUI({
-  #   if (validGene()) {
-  #     renderValueBox({
-  #       input_type <- detect_input_type(toupper(input$gene_search))
-  #       select_row <- app_data_table[
-  #         app_data_table[[input_type]] == toupper(input$gene_search), ]
-  #       valueBox(
-  #         "Cellular Core Essential",
-  #         #HTML("DPCs Genes of Interest<br><span style='font-size: 14px;'>&nbsp;</span>"),
-  #         select_row$depmap_essential_1,
-  #         icon = icon("heart-pulse"),
-  #         color = "blue",
-  #       )
-  #     })
-  #   }
-  # })
-
 
 
   output$centers_sumtab <- renderUI({
@@ -1172,9 +995,7 @@ server <- function(input, output) {
   })
 
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # VISUALISATIONS
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #  # VISUALISATIONS-----------------------------------------------------------------------------------
 
   # UPSET
   gene_upset_plot <- readRDS("./rda_data/gene_upset_plot.rda")
@@ -1352,21 +1173,28 @@ server <- function(input, output) {
     center <- input$center_go
     if (center == "jax") {
       jax_plot <- readRDS("./rda_data/go_scatter_plots.rda")
-      jax_plot[[1]]  # Return the plot object
+      jax_plot <- ggplotly(jax_plot[[1]]) %>%
+        layout(showlegend = FALSE)
     } else if (center == "nwu") {
       nwu_plot <- readRDS("./rda_data/go_scatter_plots.rda")
-      nwu_plot[[2]]  # Return the plot object
-    } else if (center == "msk") {
+      nwu_plot <- ggplotly(nwu_plot[[2]]) %>%
+        layout(showlegend = FALSE)
+      }
+    else if (center == "msk") {
       msk_plot <- readRDS("./rda_data/go_scatter_plots.rda")
-      msk_plot[[3]]  # Return the plot object
-    } else if (center == "all morphic") {
+      msk_plot <- ggplotly(msk_plot[[3]]) %>%
+        layout(showlegend = FALSE)
+      }
+    else if (center == "all morphic") {
       all_plot <- readRDS("./rda_data/all_morphic_go_scatter_plot.rda")
+      all_plot <- ggplotly(all_plot) %>%
+        layout(showlegend = FALSE)
       # Replace with code to customize the NWU viability plot
-      all_plot  # Return the plot object
     } else {
       ucsf_plot <- readRDS("./rda_data/go_scatter_plots.rda")
-      ucsf_plot[[4]]  # Return the plot object
-    }
+      ucsf_plot <- ggplotly(ucsf_plot[[4]]) %>%
+        layout(showlegend = FALSE)
+      }
   })
 
   output$go_jax_plot <- renderPlotly({
@@ -1384,7 +1212,8 @@ server <- function(input, output) {
 
     go_scatterplot_obj <- go_scatterplot_obj + geom_text(aes(label=jax_plot$plot_env$reducedTerms$parentTerm))
     if (center == "all centers") {
-      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3)
+      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3) %>%
+        layout(showlegend = FALSE)
     }
   })
 
@@ -1403,7 +1232,8 @@ server <- function(input, output) {
 
     go_scatterplot_obj <- go_scatterplot_obj + geom_text(aes(label=msk_plot$plot_env$reducedTerms$parentTerm))
     if (center == "all centers") {
-      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3)
+      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3) %>%
+        layout(showlegend = FALSE)
     }
   })
 
@@ -1422,7 +1252,8 @@ server <- function(input, output) {
 
     go_scatterplot_obj <- go_scatterplot_obj + geom_text(aes(label=nwu_plot$plot_env$reducedTerms$parentTerm))
     if (center == "all centers") {
-      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3)
+      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3) %>%
+        layout(showlegend = FALSE)
     }
   })
 
@@ -1441,32 +1272,12 @@ server <- function(input, output) {
 
     go_scatterplot_obj <- go_scatterplot_obj + geom_text(aes(label=ucsf_plot$plot_env$reducedTerms$parentTerm))
     if (center == "all centers") {
-      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3)
+      ggplotly(go_scatterplot_obj, autosize = TRUE, width = 3000, height = 1000, size = 3) %>%
+        layout(showlegend = FALSE)
     }
   })
 
-  # Render the Reactome emapplot plot based on the selected center
-  # Not using plotly as emapplot not supported
-  # output$reactome_emapplot <- renderPlot({
-  #   center <- input$center_reactome
-  #   if (center == "jax") {
-  #     jax_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
-  #     jax_plot[[1]]  # Return the plot object
-  #   } else if (center == "nwu") {
-  #     nwu_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
-  #     nwu_plot[[2]]  # Return the plot object
-  #   } else if (center == "msk") {
-  #     msk_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
-  #     msk_plot[[3]]  # Return the plot object
-  #   } else if (center == "all morphic") {
-  #     all_plot <- readRDS("./rda_data/all_morphic_reactome_emmaplot.rda")
-  #     # Replace with code to customize the NWU viability plot
-  #     all_plot  # Return the plot object
-  #   } else {
-  #     ucsf_plot <- readRDS("./rda_data/reactome_emmaplots.rda")
-  #     ucsf_plot[[4]]  # Return the plot object
-  #   }
-  # })
+
 
   output$reactome_emapplot <- renderPlot({
     center <- input$center_reactome
@@ -1522,11 +1333,9 @@ server <- function(input, output) {
   })
 
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # CELL ESSENTIALITY BOX PLOTS
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #GENE CONSTRAINT METRICS - CELL LINE -----------------------------------------------------------------------------------
 
-  ########-------- DepMap BoxPlot
+  # Depmap ---------
   output$cell_essentiality_boxplot_depmap <- renderPlotly({
 
     # Load cell_essentiality RDS dataframe
@@ -1538,7 +1347,7 @@ server <- function(input, output) {
     cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
 
     # Load hgnc ID input
-    user_input_hgnc_id <- input$search_hgnc_id
+    user_input_hgnc_id <- input$search_hgnc_id_cell
 
     center <- input$center_cell_essentiality_boxplots
 
@@ -1576,26 +1385,6 @@ server <- function(input, output) {
       threshold_value <- -1
     }
 
-    # sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-    # if (sig_threshod_depmap_boxplot == "-0.5") {
-    #   msk_plot_text <- cell_essentiality_msk$depmap_essential_05_label
-    # } else if (sig_threshod_depmap_boxplot == "-1") {
-    #   msk_plot_text <- cell_essentiality_msk$depmap_essential_1_label
-    # }
-    #
-    # sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-    # if (sig_threshod_depmap_boxplot == "-0.5") {
-    #   nwu_plot_text <- cell_essentiality_nwu$depmap_essential_05_label
-    # } else if (sig_threshod_depmap_boxplot == "-1") {
-    #   nwu_plot_text <- cell_essentiality_nwu$depmap_essential_1_label
-    # }
-    #
-    # sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-    # if (sig_threshod_depmap_boxplot == "-0.5") {
-    #   ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_05_label
-    # } else if (sig_threshod_depmap_boxplot == "-1") {
-    #   ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_1_label
-    # }
 
     # MODIFY PLOT TEXT TO REFLECT THRESHOLD SET i.e. label will be like: essential (<-1)
     if (center == "jax") {
@@ -1636,12 +1425,6 @@ server <- function(input, output) {
     } else if (center == "all morphic") {
       cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
 
-      # sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
-      # if (sig_threshod_depmap_boxplot == "-0.5") {
-      #   all_plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
-      # } else if (sig_threshod_depmap_boxplot == "-1") {
-      #   all_plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
-      # }
 
       cell_essentiality_depmap_boxplot <- cell_essentiality_all_morphic %>%
         plot_ly(name = center, y = ~mean_depmap_gene_effect_score, x = center, type = "violin",
@@ -1688,16 +1471,44 @@ server <- function(input, output) {
       cell_essentiality_centre_selected <- cell_essentiality_ucsf
 
     }
-
+    # ORDERING AND LEGEND NEEDS TWEAKING
     if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+      if (center == "all centers") {
+        cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$mean_depmap_gene_effect_score[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'JAX', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\nMean gene effect score :", cell_essentiality_all_morphic$mean_depmap_gene_effect_score[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$mean_depmap_gene_effect_score[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'NWU', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\nMean gene effect score :", cell_essentiality_all_morphic$mean_depmap_gene_effect_score[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$mean_depmap_gene_effect_score[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'MSK', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\nMean gene effect score :", cell_essentiality_all_morphic$mean_depmap_gene_effect_score[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$mean_depmap_gene_effect_score[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'UCSF', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\nMean gene effect score :", cell_essentiality_all_morphic$mean_depmap_gene_effect_score[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id]))
+          cell_essentiality_depmap_boxplot
 
-      cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
-        add_trace(name = user_input_hgnc_id,
-                  y = cell_essentiality_centre_selected$mean_depmap_gene_effect_score[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
-                  hovertext = paste("HGNC ID :", user_input_hgnc_id,
-                                    "\nMean gene effect score :", cell_essentiality_centre_selected$mean_depmap_gene_effect_score[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id],
-                                    "\n", plot_text[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id]))
-      cell_essentiality_depmap_boxplot
+
+      } else {
+        cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_centre_selected$mean_depmap_gene_effect_score[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\nMean gene effect score :", cell_essentiality_centre_selected$mean_depmap_gene_effect_score[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id]))
+        cell_essentiality_depmap_boxplot
+      }
+
+
     }
 
     # Add protein coding genes trace if Checkbox is Checked
@@ -1720,17 +1531,225 @@ server <- function(input, output) {
 
   })
 
-  ############### --------------- new MEF
-  output$cell_essentiality_boxplot_mef <- renderPlotly({
+  # ############### --------------- new MEF
+  # output$cell_essentiality_boxplot_mef <- renderPlotly({
+  #
+  #   # Load cell_essentiality RDS dataframe
+  #   cell_essentiality <- readRDS("./rda_data/cell_essentiality.rda")
+  #
+  #   # Load hgnc ID input
+  #   user_input_hgnc_id <- input$search_hgnc_id_cell
+  #
+  #   center <- input$center_cell_essentiality_boxplots
+  #
+  #   hline <- function(y = 0, color = "grey") {
+  #     list(
+  #       type = "line",
+  #       x0 = 0,
+  #       x1 = 1,
+  #       xref = "paper",
+  #       y0 = y,
+  #       y1 = y,
+  #       line = list( dash = "dash",color = color)
+  #     )
+  #   }
+  #
+  #   threshold_value <- 0.1
+  #   if (center == "jax") {
+  #     cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
+  #     cell_essentiality_mef_boxplot <- cell_essentiality_jax %>%
+  #       plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Bayes factor :", cell_essentiality_jax$h1_mef_BF,
+  #                                                     "\n", cell_essentiality_jax$h1_mef_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   } else if (center == "nwu") {
+  #     cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
+  #     cell_essentiality_mef_boxplot <- cell_essentiality_nwu %>%
+  #       plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Bayes factor :", cell_essentiality_nwu$h1_mef_BF,
+  #                                                     "\n", cell_essentiality_nwu$h1_mef_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   } else if (center == "msk") {
+  #     cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
+  #     cell_essentiality_mef_boxplot <- cell_essentiality_msk %>%
+  #       plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Bayes factor :", cell_essentiality_msk$h1_mef_BF,
+  #                                                     "\n", cell_essentiality_msk$h1_mef_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   } else if (center == "all morphic") {
+  #     cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
+  #     cell_essentiality_mef_boxplot <- cell_essentiality_all_morphic %>%
+  #       plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Bayes factor :", cell_essentiality_all_morphic$h1_mef_BF,
+  #                                                     "\n", cell_essentiality_all_morphic$h1_mef_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   } else {
+  #     cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
+  #     cell_essentiality_mef_boxplot <- cell_essentiality_ucsf %>%
+  #       plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
+  #                                                     "<br> Bayes factor :", cell_essentiality_ucsf$h1_mef_BF,
+  #                                                     "\n", cell_essentiality_ucsf$h1_mef_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   }
+  #
+  #   ###############
+  #
+  #   if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+  #
+  #     cell_essentiality_mef_boxplot <- cell_essentiality_mef_boxplot %>%
+  #       add_trace(name = user_input_hgnc_id,
+  #                 y = cell_essentiality$h1_mef_BF[cell_essentiality$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+  #                 hovertext = paste("HGNC ID :", user_input_hgnc_id,
+  #                                   "\nBayes factor :", cell_essentiality$h1_mef_BF[cell_essentiality$hgnc_id == user_input_hgnc_id],
+  #                                   "\n", cell_essentiality$h1_mef_essential_label[cell_essentiality$hgnc_id == user_input_hgnc_id]))
+  #     cell_essentiality_mef_boxplot
+  #   }
+  #
+  #   # Add protein coding genes trace if Checkbox is Checked
+  #   if (input$compare_protein_coding_genes) {
+  #     # Code to generate graph2 when the checkbox is checked
+  #     # ...
+  #     # Your code here to generate graph2
+  #     cell_essentiality_mef_boxplot <- cell_essentiality_mef_boxplot %>%
+  #       add_trace(name = 'all protein coding genes',
+  #                 data = cell_essentiality,
+  #                 y = ~h1_mef_BF,
+  #                 x = "protein coding genes", hoverinfo = "text",
+  #                 hovertext = paste("HGNC ID :", cell_essentiality$hgnc_id , "\nBayes factor :", cell_essentiality$h1_mef_BF, "\n", cell_essentiality$h1_mef_essential_label))
+  #
+  #     cell_essentiality_mef_boxplot
+  #   } else {
+  #     # Return NULL or an empty plot when the checkbox is not checked
+  #     cell_essentiality_mef_boxplot
+  #   }
+  #
+  #
+  #
+  # })
+  #
+  # ############### --------------- new LAMININ
+  # output$cell_essentiality_boxplot_laminin <- renderPlotly({
+  #
+  #   # Load cell_essentiality RDS dataframe
+  #   cell_essentiality <- readRDS("./rda_data/cell_essentiality.rda")
+  #
+  #   # Load hgnc ID input
+  #   user_input_hgnc_id <- input$search_hgnc_id_cell
+  #
+  #   center <- input$center_cell_essentiality_boxplots
+  #
+  #   hline <- function(y = 0, color = "grey") {
+  #     list(
+  #       type = "line",
+  #       x0 = 0,
+  #       x1 = 1,
+  #       xref = "paper",
+  #       y0 = y,
+  #       y1 = y,
+  #       line = list( dash = "dash",color = color)
+  #     )
+  #   }
+  #
+  #   threshold_value <- 0.1
+  #   if (center == "jax") {
+  #     cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
+  #     cell_essentiality_laminin_boxplot <- cell_essentiality_jax %>%
+  #       plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Bayes factor :", cell_essentiality_jax$h1_laminin_BF,
+  #                                                     "\n", cell_essentiality_jax$h1_laminin_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   } else if (center == "nwu") {
+  #     cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
+  #     cell_essentiality_laminin_boxplot <- cell_essentiality_nwu %>%
+  #       plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Bayes factor :", cell_essentiality_nwu$h1_laminin_BF,
+  #                                                     "\n", cell_essentiality_nwu$h1_laminin_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   } else if (center == "msk") {
+  #     cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
+  #     cell_essentiality_laminin_boxplot <- cell_essentiality_msk %>%
+  #       plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Bayes factor :", cell_essentiality_msk$h1_laminin_BF,
+  #                                                     "\n", cell_essentiality_msk$h1_laminin_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   } else if (center == "all morphic") {
+  #     cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
+  #     cell_essentiality_laminin_boxplot <- cell_essentiality_all_morphic %>%
+  #       plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Bayes factor :", cell_essentiality_all_morphic$h1_laminin_BF,
+  #                                                     "\n", cell_essentiality_all_morphic$h1_laminin_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   } else {
+  #     cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
+  #     cell_essentiality_laminin_boxplot <- cell_essentiality_ucsf %>%
+  #       plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
+  #               hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
+  #                                                     "<br> Bayes factor :", cell_essentiality_ucsf$h1_laminin_BF,
+  #                                                     "\n", cell_essentiality_ucsf$h1_laminin_essential_label)) %>%
+  #       layout(shapes = list(hline(threshold_value)))
+  #
+  #   }
+  #
+  #   ###############
+  #
+  #   if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+  #
+  #     cell_essentiality_laminin_boxplot <- cell_essentiality_laminin_boxplot %>%
+  #       add_trace(name = user_input_hgnc_id,
+  #                 y = cell_essentiality$h1_laminin_BF[cell_essentiality$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+  #                 hovertext = paste("HGNC ID :", user_input_hgnc_id,
+  #                                   "\nBayes factor :", cell_essentiality$h1_laminin_BF[cell_essentiality$hgnc_id == user_input_hgnc_id],
+  #                                   "\n", cell_essentiality$h1_laminin_essential_label[cell_essentiality$hgnc_id == user_input_hgnc_id]))
+  #     cell_essentiality_laminin_boxplot
+  #   }
+  #
+  #   # Add protein coding genes trace if Checkbox is Checked
+  #   if (input$compare_protein_coding_genes) {
+  #     # Code to generate graph2 when the checkbox is checked
+  #     # ...
+  #     # Your code here to generate graph2
+  #     cell_essentiality_laminin_boxplot <- cell_essentiality_laminin_boxplot %>%
+  #       add_trace(name = 'all protein coding genes',
+  #                 data = cell_essentiality,
+  #                 y = ~h1_laminin_BF,
+  #                 x = "protein coding genes", hoverinfo = "text",
+  #                 hovertext = paste("HGNC ID :", cell_essentiality$hgnc_id ,
+  #                                   "\nBayes factor :", cell_essentiality$h1_laminin_BF,
+  #                                   "\n", cell_essentiality$h1_laminin_essential_label))
+  #
+  #     cell_essentiality_laminin_boxplot
+  #   } else {
+  #     # Return NULL or an empty plot when the checkbox is not checked
+  #     cell_essentiality_laminin_boxplot
+  #   }
+  # })
 
+  # MEF ---------
+  output$cell_essentiality_boxplot_mef <- renderPlotly({
     # Load cell_essentiality RDS dataframe
     cell_essentiality <- readRDS("./rda_data/cell_essentiality.rda")
+    cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
+    cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
+    cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
+    cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
+    cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
 
     # Load hgnc ID input
-    user_input_hgnc_id <- input$search_hgnc_id
+    user_input_hgnc_id <- input$search_hgnc_id_cell
 
     center <- input$center_cell_essentiality_boxplots
 
+    # Threshold line params
     hline <- function(y = 0, color = "grey") {
       list(
         type = "line",
@@ -1743,95 +1762,398 @@ server <- function(input, output) {
       )
     }
 
-    threshold_value <- 0.1
+    sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+    if (sig_threshod_depmap_boxplot == "-0.5") {
+      jax_plot_text <- cell_essentiality_jax$depmap_essential_05_label
+      msk_plot_text <- cell_essentiality_msk$depmap_essential_05_label
+      nwu_plot_text <- cell_essentiality_nwu$depmap_essential_05_label
+      ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_05_label
+      all_plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
+      plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
+
+      threshold_value <- -0.5
+    } else if (sig_threshod_depmap_boxplot == "-1") {
+      jax_plot_text <- cell_essentiality_jax$depmap_essential_1_label
+      msk_plot_text <- cell_essentiality_msk$depmap_essential_1_label
+      nwu_plot_text <- cell_essentiality_nwu$depmap_essential_1_label
+      ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_1_label
+      all_plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
+      plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
+
+      threshold_value <- -1
+    }
+
+
+    # MODIFY PLOT TEXT TO REFLECT THRESHOLD SET i.e. label will be like: essential (<-1)
     if (center == "jax") {
       cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
-      cell_essentiality_mef_boxplot <- cell_essentiality_jax %>%
-        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
-                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Bayes factor :", cell_essentiality_jax$h1_mef_BF,
-                                                      "\n", cell_essentiality_jax$h1_mef_essential_label)) %>%
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_jax %>%
+        plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin", box = list(visible = T),
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_jax$h1_mef_BF,
+                                                      "\n", jax_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
+
+      cell_essentiality_centre_selected <- cell_essentiality_jax
 
     } else if (center == "nwu") {
       cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
-      cell_essentiality_mef_boxplot <- cell_essentiality_nwu %>%
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_nwu %>%
         plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
-                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Bayes factor :", cell_essentiality_nwu$h1_mef_BF,
-                                                      "\n", cell_essentiality_nwu$h1_mef_essential_label)) %>%
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_nwu$h1_mef_BF,
+                                                      "\n", nwu_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
+
+      cell_essentiality_centre_selected <- cell_essentiality_nwu
 
     } else if (center == "msk") {
       cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
-      cell_essentiality_mef_boxplot <- cell_essentiality_msk %>%
+
+
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_msk %>%
         plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
-                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Bayes factor :", cell_essentiality_msk$h1_mef_BF,
-                                                      "\n", cell_essentiality_msk$h1_mef_essential_label)) %>%
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_msk$h1_mef_BF,
+                                                      "\n", msk_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
+
+      cell_essentiality_centre_selected <- cell_essentiality_msk
 
     } else if (center == "all morphic") {
       cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
-      cell_essentiality_mef_boxplot <- cell_essentiality_all_morphic %>%
+
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_all_morphic %>%
         plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
-                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Bayes factor :", cell_essentiality_all_morphic$h1_mef_BF,
-                                                      "\n", cell_essentiality_all_morphic$h1_mef_essential_label)) %>%
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_all_morphic$h1_mef_BF,
+                                                      "\n", all_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
+
+      cell_essentiality_centre_selected <- cell_essentiality_all_morphic
+
+    } else if (center == "all centers") {
+      ### PLOT_TEXT NEEDS MODIFYING
+      cell_essentiality_depmap_boxplot <- cell_essentiality_jax %>%
+        plot_ly(name = "JAX", y = ~h1_mef_BF, x = "JAX", type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_jax$h1_mef_BF,
+                                                      "\n", jax_plot_text)) %>%
+        add_trace(name = 'MSK',
+                  data = cell_essentiality_msk,
+                  y = ~h1_mef_BF,
+                  x = "MSK", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id , "Bayes Factor :", cell_essentiality_msk$h1_mef_BF, "\n", msk_plot_text)) %>%
+        add_trace(name = 'NWU',
+                  data = cell_essentiality_nwu,
+                  y = ~h1_mef_BF,
+                  x = "NWU", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id , "Bayes Factor :", cell_essentiality_nwu$h1_mef_BF, "\n", nwu_plot_text)) %>%
+        add_trace(name = 'UCSF',
+                  data = cell_essentiality_ucsf,
+                  y = ~h1_mef_BF,
+                  x = "UCSF", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id , "Bayes Factor :", cell_essentiality_ucsf$h1_mef_BF, "\n", ucsf_plot_text))
+
+
+      cell_essentiality_centre_selected <- cell_essentiality_depmap_boxplot
 
     } else {
       cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
-      cell_essentiality_mef_boxplot <- cell_essentiality_ucsf %>%
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_ucsf %>%
         plot_ly(name = center, y = ~h1_mef_BF, x = center, type = "violin",
                 hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
-                                                      "<br> Bayes factor :", cell_essentiality_ucsf$h1_mef_BF,
-                                                      "\n", cell_essentiality_ucsf$h1_mef_essential_label)) %>%
+                                                      "<br> Mean gene effect score :", cell_essentiality_ucsf$h1_mef_BF,
+                                                      "\n", ucsf_plot_text)) %>%
         layout(shapes = list(hline(threshold_value)))
+      cell_essentiality_centre_selected <- cell_essentiality_ucsf
 
     }
-
-    ###############
-
+    # ORDERING AND LEGEND NEEDS TWEAKING
     if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+      if (center == "all centers") {
+        cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$h1_mef_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'JAX', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_all_morphic$h1_mef_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$h1_mef_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'NWU', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_all_morphic$h1_mef_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$h1_mef_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'MSK', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_all_morphic$h1_mef_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$h1_mef_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'UCSF', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_all_morphic$h1_mef_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id]))
+        cell_essentiality_depmap_boxplot
 
-      cell_essentiality_mef_boxplot <- cell_essentiality_mef_boxplot %>%
-        add_trace(name = user_input_hgnc_id,
-                  y = cell_essentiality$h1_mef_BF[cell_essentiality$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
-                  hovertext = paste("HGNC ID :", user_input_hgnc_id,
-                                    "\nBayes factor :", cell_essentiality$h1_mef_BF[cell_essentiality$hgnc_id == user_input_hgnc_id],
-                                    "\n", cell_essentiality$h1_mef_essential_label[cell_essentiality$hgnc_id == user_input_hgnc_id]))
-      cell_essentiality_mef_boxplot
+
+      } else {
+        cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_centre_selected$h1_mef_BF[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_centre_selected$h1_mef_BF[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id]))
+        cell_essentiality_depmap_boxplot
+      }
+
+
     }
 
     # Add protein coding genes trace if Checkbox is Checked
     if (input$compare_protein_coding_genes) {
-      # Code to generate graph2 when the checkbox is checked
-      # ...
-      # Your code here to generate graph2
-      cell_essentiality_mef_boxplot <- cell_essentiality_mef_boxplot %>%
+      # Code to generate all protein coding genes when the checkbox is checked
+      cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
         add_trace(name = 'all protein coding genes',
                   data = cell_essentiality,
                   y = ~h1_mef_BF,
                   x = "protein coding genes", hoverinfo = "text",
-                  hovertext = paste("HGNC ID :", cell_essentiality$hgnc_id , "\nBayes factor :", cell_essentiality$h1_mef_BF, "\n", cell_essentiality$h1_mef_essential_label))
+                  hovertext = paste("HGNC ID :", cell_essentiality$hgnc_id , "Bayes Factor :", cell_essentiality$h1_mef_BF, "\n", plot_text))
 
-      cell_essentiality_mef_boxplot
+      cell_essentiality_depmap_boxplot
     } else {
       # Return NULL or an empty plot when the checkbox is not checked
-      cell_essentiality_mef_boxplot
+      cell_essentiality_depmap_boxplot
     }
 
 
 
   })
 
-  ############### --------------- new LAMININ
+  # Laminin -----------
   output$cell_essentiality_boxplot_laminin <- renderPlotly({
-
     # Load cell_essentiality RDS dataframe
     cell_essentiality <- readRDS("./rda_data/cell_essentiality.rda")
+    cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
+    cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
+    cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
+    cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
+    cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
 
     # Load hgnc ID input
-    user_input_hgnc_id <- input$search_hgnc_id
+    user_input_hgnc_id <- input$search_hgnc_id_cell
 
     center <- input$center_cell_essentiality_boxplots
+
+    # Threshold line params
+    hline <- function(y = 0, color = "grey") {
+      list(
+        type = "line",
+        x0 = 0,
+        x1 = 1,
+        xref = "paper",
+        y0 = y,
+        y1 = y,
+        line = list( dash = "dash",color = color)
+      )
+    }
+
+    sig_threshod_depmap_boxplot <- input$cell_essential_depmap_significance_threshold
+    if (sig_threshod_depmap_boxplot == "-0.5") {
+      jax_plot_text <- cell_essentiality_jax$depmap_essential_05_label
+      msk_plot_text <- cell_essentiality_msk$depmap_essential_05_label
+      nwu_plot_text <- cell_essentiality_nwu$depmap_essential_05_label
+      ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_05_label
+      all_plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
+      plot_text <- cell_essentiality_all_morphic$depmap_essential_05_label
+
+      threshold_value <- -0.5
+    } else if (sig_threshod_depmap_boxplot == "-1") {
+      jax_plot_text <- cell_essentiality_jax$depmap_essential_1_label
+      msk_plot_text <- cell_essentiality_msk$depmap_essential_1_label
+      nwu_plot_text <- cell_essentiality_nwu$depmap_essential_1_label
+      ucsf_plot_text <- cell_essentiality_ucsf$depmap_essential_1_label
+      all_plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
+      plot_text <- cell_essentiality_all_morphic$depmap_essential_1_label
+
+      threshold_value <- -1
+    }
+
+
+    # MODIFY PLOT TEXT TO REFLECT THRESHOLD SET i.e. label will be like: essential (<-1)
+    if (center == "jax") {
+      cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_jax %>%
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin", box = list(visible = T),
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_jax$h1_laminin_BF,
+                                                      "\n", jax_plot_text)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+      cell_essentiality_centre_selected <- cell_essentiality_jax
+
+    } else if (center == "nwu") {
+      cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_nwu %>%
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_nwu$h1_laminin_BF,
+                                                      "\n", nwu_plot_text)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+      cell_essentiality_centre_selected <- cell_essentiality_nwu
+
+    } else if (center == "msk") {
+      cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
+
+
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_msk %>%
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_msk$h1_laminin_BF,
+                                                      "\n", msk_plot_text)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+      cell_essentiality_centre_selected <- cell_essentiality_msk
+
+    } else if (center == "all morphic") {
+      cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
+
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_all_morphic %>%
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_all_morphic$h1_laminin_BF,
+                                                      "\n", all_plot_text)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+      cell_essentiality_centre_selected <- cell_essentiality_all_morphic
+
+    } else if (center == "all centers") {
+      ### PLOT_TEXT NEEDS MODIFYING
+      cell_essentiality_depmap_boxplot <- cell_essentiality_jax %>%
+        plot_ly(name = "JAX", y = ~h1_laminin_BF, x = "JAX", type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Mean gene effect score :", cell_essentiality_jax$h1_laminin_BF,
+                                                      "\n", jax_plot_text)) %>%
+        add_trace(name = 'MSK',
+                  data = cell_essentiality_msk,
+                  y = ~h1_laminin_BF,
+                  x = "MSK", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id , "Bayes Factor :", cell_essentiality_msk$h1_laminin_BF, "\n", msk_plot_text)) %>%
+        add_trace(name = 'NWU',
+                  data = cell_essentiality_nwu,
+                  y = ~h1_laminin_BF,
+                  x = "NWU", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id , "Bayes Factor :", cell_essentiality_nwu$h1_laminin_BF, "\n", nwu_plot_text)) %>%
+        add_trace(name = 'UCSF',
+                  data = cell_essentiality_ucsf,
+                  y = ~h1_laminin_BF,
+                  x = "UCSF", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id , "Bayes Factor :", cell_essentiality_ucsf$h1_laminin_BF, "\n", ucsf_plot_text))
+
+
+      cell_essentiality_centre_selected <- cell_essentiality_depmap_boxplot
+
+    } else {
+      cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
+
+      cell_essentiality_depmap_boxplot <- cell_essentiality_ucsf %>%
+        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
+                                                      "<br> Mean gene effect score :", cell_essentiality_ucsf$h1_laminin_BF,
+                                                      "\n", ucsf_plot_text)) %>%
+        layout(shapes = list(hline(threshold_value)))
+      cell_essentiality_centre_selected <- cell_essentiality_ucsf
+
+    }
+    # ORDERING AND LEGEND NEEDS TWEAKING
+    if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+      if (center == "all centers") {
+        cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$h1_laminin_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'JAX', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_all_morphic$h1_laminin_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$h1_laminin_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'NWU', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_all_morphic$h1_laminin_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$h1_laminin_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'MSK', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_all_morphic$h1_laminin_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_all_morphic$h1_laminin_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id], x = 'UCSF', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_all_morphic$h1_laminin_BF[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_all_morphic$hgnc_id == user_input_hgnc_id]))
+        cell_essentiality_depmap_boxplot
+
+
+      } else {
+        cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = cell_essentiality_centre_selected$h1_laminin_BF[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "Bayes Factor :", cell_essentiality_centre_selected$h1_laminin_BF[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[cell_essentiality_centre_selected$hgnc_id == user_input_hgnc_id]))
+        cell_essentiality_depmap_boxplot
+      }
+
+
+    }
+
+    # Add protein coding genes trace if Checkbox is Checked
+    if (input$compare_protein_coding_genes) {
+      # Code to generate all protein coding genes when the checkbox is checked
+      cell_essentiality_depmap_boxplot <- cell_essentiality_depmap_boxplot %>%
+        add_trace(name = 'all protein coding genes',
+                  data = cell_essentiality,
+                  y = ~h1_laminin_BF,
+                  x = "protein coding genes", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", cell_essentiality$hgnc_id , "Bayes Factor :", cell_essentiality$h1_laminin_BF, "\n", plot_text))
+
+      cell_essentiality_depmap_boxplot
+    } else {
+      # Return NULL or an empty plot when the checkbox is not checked
+      cell_essentiality_depmap_boxplot
+    }
+
+
+  })
+
+  #GENE CONSTRAINT METRICS - SEQUENCING -----------------------------------------------------------------------------------
+
+    # OE LOF -----------------------------------------------------------------------------------
+  output$gene_constraint_oe_lof <- renderPlotly({
+    # JAX
+    jax_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+
+    # NWU
+    nwu_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+
+    # MSK
+    msk_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+
+    #UCSF
+    ucsf_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+
+    # All protein coding
+    gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+
+    # all morphic
+    gene_constraint_metrics_morphic <-  readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+
+    jax_plot_text <- 'tbc'
+    nwu_plot_text <- 'tbc'
+    msk_plot_text <- 'tbc'
+    ucsf_plot_text <- 'tbc'
+    plot_text <- 'tbc'
+    # Load hgnc ID input
+    user_input_hgnc_id <- input$search_hgnc_id_seq
+
+    center <- input$center_gene_constraint_seq
 
     hline <- function(y = 0, color = "grey") {
       list(
@@ -1847,426 +2169,1394 @@ server <- function(input, output) {
 
     threshold_value <- 0.1
     if (center == "jax") {
-      cell_essentiality_jax <- readRDS("./rda_data/cell_essentiality_jax.rda")
-      cell_essentiality_laminin_boxplot <- cell_essentiality_jax %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
-                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_jax$hgnc_id, "<br> Bayes factor :", cell_essentiality_jax$h1_laminin_BF,
-                                                      "\n", cell_essentiality_jax$h1_laminin_essential_label)) %>%
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+      oe_lof_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_lof, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_lof_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_lof_lower)) %>%
         layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "nwu") {
-      cell_essentiality_nwu <- readRDS("./rda_data/cell_essentiality_nwu.rda")
-      cell_essentiality_laminin_boxplot <- cell_essentiality_nwu %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
-                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_nwu$hgnc_id, "<br> Bayes factor :", cell_essentiality_nwu$h1_laminin_BF,
-                                                      "\n", cell_essentiality_nwu$h1_laminin_essential_label)) %>%
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+      oe_lof_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_lof, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_lof_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_lof_lower)) %>%
         layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "msk") {
-      cell_essentiality_msk <- readRDS("./rda_data/cell_essentiality_msk.rda")
-      cell_essentiality_laminin_boxplot <- cell_essentiality_msk %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
-                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_msk$hgnc_id, "<br> Bayes factor :", cell_essentiality_msk$h1_laminin_BF,
-                                                      "\n", cell_essentiality_msk$h1_laminin_essential_label)) %>%
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+      oe_lof_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_lof, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_lof_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_lof_lower)) %>%
         layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "all morphic") {
-      cell_essentiality_all_morphic <- readRDS("./rda_data/cell_essentiality_all_morphic.rda")
-      cell_essentiality_laminin_boxplot <- cell_essentiality_all_morphic %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
-                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_all_morphic$hgnc_id, "<br> Bayes factor :", cell_essentiality_all_morphic$h1_laminin_BF,
-                                                      "\n", cell_essentiality_all_morphic$h1_laminin_essential_label)) %>%
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+      oe_lof_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_lof, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_lof_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_lof_lower)) %>%
         layout(shapes = list(hline(threshold_value)))
+    } else if (center == "all centers") {
+      ### PLOT_TEXT NEEDS MODIFYING
+      oe_lof_plot <- jax_gene_constraint_seq %>%
+        plot_ly(name = "JAX", y = ~oe_lof, x = "JAX", type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", jax_gene_constraint_seq$hgnc_id, "<br> oe_lof", jax_gene_constraint_seq$oe_lof,
+                                                      "\n", jax_plot_text)) %>%
+        add_trace(name = 'MSK',
+                  data = msk_gene_constraint_seq,
+                  y = ~oe_lof,
+                  x = "MSK", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", msk_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", msk_gene_constraint_seq$oe_lof, "\n", msk_plot_text)) %>%
+        add_trace(name = 'NWU',
+                  data = nwu_gene_constraint_seq,
+                  y = ~oe_lof,
+                  x = "NWU", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", nwu_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", nwu_gene_constraint_seq$oe_lof, "\n", nwu_plot_text)) %>%
+        add_trace(name = 'UCSF',
+                  data = ucsf_gene_constraint_seq,
+                  y = ~oe_lof,
+                  x = "UCSF", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", ucsf_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", ucsf_gene_constraint_seq$oe_lof, "\n", ucsf_plot_text))
 
     } else {
-      cell_essentiality_ucsf <- readRDS("./rda_data/cell_essentiality_ucsf.rda")
-      cell_essentiality_laminin_boxplot <- cell_essentiality_ucsf %>%
-        plot_ly(name = center, y = ~h1_laminin_BF, x = center, type = "violin",
-                hoverinfo = "text", hovertext = paste("HGNC ID :", cell_essentiality_ucsf$hgnc_id,
-                                                      "<br> Bayes factor :", cell_essentiality_ucsf$h1_laminin_BF,
-                                                      "\n", cell_essentiality_ucsf$h1_laminin_essential_label)) %>%
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+      oe_lof_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_lof, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_lof_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_lof_lower)) %>%
         layout(shapes = list(hline(threshold_value)))
 
     }
 
     ###############
 
-    if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+    # if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+    #
+    #   oe_lof_plot <- oe_lof_plot %>%
+    #     add_trace(name = user_input_hgnc_id,
+    #               y = gene_constraint_metrics$oe_lof[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+    #               hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+    #                                 "\n Upper: ", gene_constraint_metrics$oe_lof_upper[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+    #                                 "\n Lower: ", gene_constraint_metrics$oe_lof_lower[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+    #   oe_lof_plot
+    # }
 
-      cell_essentiality_laminin_boxplot <- cell_essentiality_laminin_boxplot %>%
-        add_trace(name = user_input_hgnc_id,
-                  y = cell_essentiality$h1_laminin_BF[cell_essentiality$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
-                  hovertext = paste("HGNC ID :", user_input_hgnc_id,
-                                    "\nBayes factor :", cell_essentiality$h1_laminin_BF[cell_essentiality$hgnc_id == user_input_hgnc_id],
-                                    "\n", cell_essentiality$h1_laminin_essential_label[cell_essentiality$hgnc_id == user_input_hgnc_id]))
-      cell_essentiality_laminin_boxplot
+    if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+      if (center == "all centers") {
+
+        oe_lof_plot <- oe_lof_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$oe_lof[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'JAX', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n oe_lof :", gene_constraint_metrics_morphic$oe_lof[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$oe_lof[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'NWU', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n oe_lof :", gene_constraint_metrics_morphic$oe_lof[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$oe_lof[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'MSK', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n oe_lof :", gene_constraint_metrics_morphic$oe_lof[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$oe_lof[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'UCSF', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n oe_lof :", gene_constraint_metrics_morphic$oe_lof[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id]))
+        oe_lof_plot
+
+
+      } else {
+
+        oe_lof_plot <- oe_lof_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics$oe_lof[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+                                      "\n Upper: ", gene_constraint_metrics$oe_lof_upper[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+                                      "\n Lower: ", gene_constraint_metrics$oe_lof_lower[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+        oe_lof_plot
+      }
+
+
     }
 
     # Add protein coding genes trace if Checkbox is Checked
-    if (input$compare_protein_coding_genes) {
+    if (input$compare_protein_coding_genes_gene_constraint_seq) {
       # Code to generate graph2 when the checkbox is checked
       # ...
       # Your code here to generate graph2
-      cell_essentiality_laminin_boxplot <- cell_essentiality_laminin_boxplot %>%
+      oe_lof_plot <- oe_lof_plot %>%
         add_trace(name = 'all protein coding genes',
-                  data = cell_essentiality,
-                  y = ~h1_laminin_BF,
+                  data = gene_constraint_metrics,
+                  y = ~oe_lof,
                   x = "protein coding genes", hoverinfo = "text",
-                  hovertext = paste("HGNC ID :", cell_essentiality$hgnc_id ,
-                                    "\nBayes factor :", cell_essentiality$h1_laminin_BF,
-                                    "\n", cell_essentiality$h1_laminin_essential_label))
+                  hovertext = paste("HGNC ID :", gene_constraint_metrics$hgnc_id ,
+                                    "\n Upper: ", gene_constraint_metrics$oe_lof_upper,
+                                    "\n Lower: ", gene_constraint_metrics$oe_lof_lower))
 
-      cell_essentiality_laminin_boxplot
+      oe_lof_plot
     } else {
       # Return NULL or an empty plot when the checkbox is not checked
-      cell_essentiality_laminin_boxplot
+      oe_lof_plot
     }
   })
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # GENE CONSTRAINT METRICS
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  ### SHET MEAN
-  output$gene_constraint_mean_shet <- renderPlotly({
-    gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
-
-    center <- input$center
-    if (center == "jax") {
-
-      gene_constraint_jax <- readRDS("./rda_data/gene_constraint_jax.rda")
-
-
-      gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_jax$shet_rgcme_mean,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Mean Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
-
-    } else if (center == "nwu") {
-
-      gene_constraint_nwu <- readRDS("./rda_data/gene_constraint_nwu.rda")
-
-
-      gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_nwu$shet_rgcme_mean,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Mean Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
-
-    } else if (center == "msk") {
-
-      gene_constraint_msk <- readRDS("./rda_data/gene_constraint_msk.rda")
-
-
-      gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_msk$shet_rgcme_mean,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Mean Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
-
-    } else if (center == "all morphic") {
-
-      gene_constraint_all_morphic <- readRDS("./rda_data/gene_constraint_metrics_morphic_1006.rda")
-
-
-      gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_all_morphic$shet_rgcme_mean,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Mean Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
-
-    } else {
-
-      gene_constraint_ucsf <- readRDS("./rda_data/gene_constraint_ucsf.rda")
-
-
-      gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_ucsf$shet_rgcme_mean,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Mean Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
-
-    }
-
-    if (input$compare_protein_coding_genes_gene_constraint) {
-      gene_constraint_mean_shet <- gene_constraint_mean_shet %>%
-        add_histogram(x = ~gene_constraint_metrics$shet_rgcme_mean,
-                      hovertemplate = "Number of protein coding Genes: %{y} <extra></extra>",
-                      name = "Protein coding genes")
-      # marker = list(color = "rgb(0, 119, 182)",
-      #               line = list(color = "rgb(202, 240, 248)",
-      #                           width = 2))) %
-
-      gene_constraint_mean_shet
-    } else {
-      gene_constraint_mean_shet
-    }
-
-  })
-
-  ### OE MIS gene_constraint_oe_mis
+    # OE MIS -----------------------------------------------------------------------------------
   output$gene_constraint_oe_mis <- renderPlotly({
+    # JAX
+    jax_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+
+    # NWU
+    nwu_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+
+    # MSK
+    msk_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+
+    #UCSF
+    ucsf_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+
+    # All protein coding
     gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
 
-    center <- input$center
+    # all morphic
+    gene_constraint_metrics_morphic <-  readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+
+    jax_plot_text <- 'tbc'
+    nwu_plot_text <- 'tbc'
+    msk_plot_text <- 'tbc'
+    ucsf_plot_text <- 'tbc'
+    plot_text <- 'tbc'
+    # Load hgnc ID input
+    user_input_hgnc_id <- input$search_hgnc_id_seq
+
+    center <- input$center_gene_constraint_seq
+
+    hline <- function(y = 0, color = "grey") {
+      list(
+        type = "line",
+        x0 = 0,
+        x1 = 1,
+        xref = "paper",
+        y0 = y,
+        y1 = y,
+        line = list( dash = "dash",color = color)
+      )
+    }
+
+    threshold_value <- 0.1
     if (center == "jax") {
-
-      gene_constraint_jax <- readRDS("./rda_data/gene_constraint_jax.rda")
-
-
-      gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_jax$oe_mis,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+      oe_mis_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_mis, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_mis_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_mis_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "nwu") {
-
-      gene_constraint_nwu <- readRDS("./rda_data/gene_constraint_nwu.rda")
-
-
-      gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_nwu$oe_mis,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+      oe_mis_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_mis, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_mis_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_mis_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "msk") {
-
-      gene_constraint_msk <- readRDS("./rda_data/gene_constraint_msk.rda")
-
-
-      gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_msk$oe_mis,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+      oe_mis_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_mis, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_mis_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_mis_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "all morphic") {
-
-      gene_constraint_all_morphic <- readRDS("./rda_data/gene_constraint_metrics_morphic_1006.rda")
-
-
-      gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_all_morphic$oe_mis,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+      oe_mis_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_mis, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_mis_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_mis_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
+    } else if (center == "all centers") {
+      ### PLOT_TEXT NEEDS MODIFYING
+      oe_mis_plot <- jax_gene_constraint_seq %>%
+        plot_ly(name = "JAX", y = ~oe_mis, x = "JAX", type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", jax_gene_constraint_seq$hgnc_id, "<br> oe_mis", jax_gene_constraint_seq$oe_mis,
+                                                      "\n", jax_plot_text)) %>%
+        add_trace(name = 'MSK',
+                  data = msk_gene_constraint_seq,
+                  y = ~oe_mis,
+                  x = "MSK", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", msk_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", msk_gene_constraint_seq$oe_mis, "\n", msk_plot_text)) %>%
+        add_trace(name = 'NWU',
+                  data = nwu_gene_constraint_seq,
+                  y = ~oe_mis,
+                  x = "NWU", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", nwu_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", nwu_gene_constraint_seq$oe_mis, "\n", nwu_plot_text)) %>%
+        add_trace(name = 'UCSF',
+                  data = ucsf_gene_constraint_seq,
+                  y = ~oe_mis,
+                  x = "UCSF", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", ucsf_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", ucsf_gene_constraint_seq$oe_mis, "\n", ucsf_plot_text))
 
     } else {
-
-      gene_constraint_ucsf <- readRDS("./rda_data/gene_constraint_jax.rda")
-
-
-      gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_ucsf$oe_mis,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+      oe_mis_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~oe_mis, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$oe_mis_upper,
+                                                      "\n Lower: ", gene_constraint_seq$oe_mis_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
 
     }
 
-    if (input$compare_protein_coding_genes_gene_constraint) {
-      gene_constraint_oe_mis <- gene_constraint_oe_mis %>%
-        add_histogram(x = ~gene_constraint_metrics$oe_mis,
-                      hovertemplate = "Number of protein coding Genes: %{y} <extra></extra>",
-                      name = "Protein coding genes")
-      # marker = list(color = "rgb(0, 119, 182)",
-      #               line = list(color = "rgb(202, 240, 248)",
-      #                           width = 2))) %
+    ###############
 
-      gene_constraint_oe_mis
-    } else {
-      gene_constraint_oe_mis
+    # if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+    #
+    #   oe_mis_plot <- oe_mis_plot %>%
+    #     add_trace(name = user_input_hgnc_id,
+    #               y = gene_constraint_metrics$oe_mis[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+    #               hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+    #                                 "\n Upper: ", gene_constraint_metrics$oe_mis_upper[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+    #                                 "\n Lower: ", gene_constraint_metrics$oe_mis_lower[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+    #   oe_mis_plot
+    # }
+
+    if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+      if (center == "all centers") {
+
+        oe_mis_plot <- oe_mis_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$oe_mis[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'JAX', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n oe_mis :", gene_constraint_metrics_morphic$oe_mis[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$oe_mis[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'NWU', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n oe_mis :", gene_constraint_metrics_morphic$oe_mis[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$oe_mis[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'MSK', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n oe_mis :", gene_constraint_metrics_morphic$oe_mis[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$oe_mis[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'UCSF', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n oe_mis :", gene_constraint_metrics_morphic$oe_mis[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id]))
+        oe_mis_plot
+
+
+      } else {
+
+        oe_mis_plot <- oe_mis_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics$oe_mis[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+                                      "\n Upper: ", gene_constraint_metrics$oe_mis_upper[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+                                      "\n Lower: ", gene_constraint_metrics$oe_mis_lower[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+        oe_mis_plot
+      }
+
+
     }
 
+    # Add protein coding genes trace if Checkbox is Checked
+    if (input$compare_protein_coding_genes_gene_constraint_seq) {
+      # Code to generate graph2 when the checkbox is checked
+      # ...
+      # Your code here to generate graph2
+      oe_mis_plot <- oe_mis_plot %>%
+        add_trace(name = 'all protein coding genes',
+                  data = gene_constraint_metrics,
+                  y = ~oe_mis,
+                  x = "protein coding genes", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", gene_constraint_metrics$hgnc_id ,
+                                    "\n Upper: ", gene_constraint_metrics$oe_mis_upper,
+                                    "\n Lower: ", gene_constraint_metrics$oe_mis_lower))
+
+      oe_mis_plot
+    } else {
+      # Return NULL or an empty plot when the checkbox is not checked
+      oe_mis_plot
+    }
   })
 
-  ### DOMINO
+    # SHET RGC-ME -----------------------------------------------------------------------------------
+  output$gene_constraint_shet_rgcme <- renderPlotly({
+    # JAX
+    jax_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+
+    # NWU
+    nwu_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+
+    # MSK
+    msk_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+
+    #UCSF
+    ucsf_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+
+    # All protein coding
+    gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+
+    # all morphic
+    gene_constraint_metrics_morphic <-  readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+
+    jax_plot_text <- 'tbc'
+    nwu_plot_text <- 'tbc'
+    msk_plot_text <- 'tbc'
+    ucsf_plot_text <- 'tbc'
+    plot_text <- 'tbc'
+    # Load hgnc ID input
+    user_input_hgnc_id <- input$search_hgnc_id_seq
+
+    center <- input$center_gene_constraint_seq
+
+    hline <- function(y = 0, color = "grey") {
+      list(
+        type = "line",
+        x0 = 0,
+        x1 = 1,
+        xref = "paper",
+        y0 = y,
+        y1 = y,
+        line = list( dash = "dash",color = color)
+      )
+    }
+
+    threshold_value <- 0.1
+    if (center == "jax") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_rgcme_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_rgcme_upper,
+                                                      "\n Lower: ", gene_constraint_seq$shet_rgcme_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    } else if (center == "nwu") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_rgcme_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_rgcme_upper,
+                                                      "\n Lower: ", gene_constraint_seq$shet_rgcme_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    } else if (center == "msk") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_rgcme_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_rgcme_upper,
+                                                      "\n Lower: ", gene_constraint_seq$shet_rgcme_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    } else if (center == "all morphic") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_rgcme_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_rgcme_upper,
+                                                      "\n Lower: ", gene_constraint_seq$shet_rgcme_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
+    } else if (center == "all centers") {
+      ### PLOT_TEXT NEEDS MODIFYING
+      shet_rgcme_plot <- jax_gene_constraint_seq %>%
+        plot_ly(name = "JAX", y = ~shet_rgcme_mean, x = "JAX", type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", jax_gene_constraint_seq$hgnc_id, "<br> shet_rgcme_mean", jax_gene_constraint_seq$shet_rgcme_mean,
+                                                      "\n", jax_plot_text)) %>%
+        add_trace(name = 'MSK',
+                  data = msk_gene_constraint_seq,
+                  y = ~shet_rgcme_mean,
+                  x = "MSK", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", msk_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", msk_gene_constraint_seq$shet_rgcme_mean, "\n", msk_plot_text)) %>%
+        add_trace(name = 'NWU',
+                  data = nwu_gene_constraint_seq,
+                  y = ~shet_rgcme_mean,
+                  x = "NWU", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", nwu_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", nwu_gene_constraint_seq$shet_rgcme_mean, "\n", nwu_plot_text)) %>%
+        add_trace(name = 'UCSF',
+                  data = ucsf_gene_constraint_seq,
+                  y = ~shet_rgcme_mean,
+                  x = "UCSF", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", ucsf_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", ucsf_gene_constraint_seq$shet_rgcme_mean, "\n", ucsf_plot_text))
+
+    } else {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_rgcme_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_rgcme_upper,
+                                                      "\n Lower: ", gene_constraint_seq$shet_rgcme_lower)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    }
+
+    ###############
+
+    # if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+    #
+    #   shet_rgcme_plot <- shet_rgcme_plot %>%
+    #     add_trace(name = user_input_hgnc_id,
+    #               y = gene_constraint_metrics$shet_rgcme_mean[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+    #               hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+    #                                 "\n Upper: ", gene_constraint_metrics$shet_rgcme_upper[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+    #                                 "\n Lower: ", gene_constraint_metrics$shet_rgcme_lower[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+    #   shet_rgcme_plot
+    # }
+
+    if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+      if (center == "all centers") {
+
+        shet_rgcme_plot <- shet_rgcme_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$shet_rgcme_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'JAX', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n shet_rgcme_mean :", gene_constraint_metrics_morphic$shet_rgcme_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$shet_rgcme_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'NWU', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n shet_rgcme_mean :", gene_constraint_metrics_morphic$shet_rgcme_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$shet_rgcme_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'MSK', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n shet_rgcme_mean :", gene_constraint_metrics_morphic$shet_rgcme_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$shet_rgcme_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'UCSF', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n shet_rgcme_mean :", gene_constraint_metrics_morphic$shet_rgcme_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id]))
+        shet_rgcme_plot
+
+
+      } else {
+
+        shet_rgcme_plot <- shet_rgcme_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics$shet_rgcme_mean[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+                                      "\n Upper: ", gene_constraint_metrics$shet_rgcme_upper[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+                                      "\n Lower: ", gene_constraint_metrics$shet_rgcme_lower[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+        shet_rgcme_plot
+      }
+
+
+    }
+
+    # Add protein coding genes trace if Checkbox is Checked
+    if (input$compare_protein_coding_genes_gene_constraint_seq) {
+      # Code to generate graph2 when the checkbox is checked
+      # ...
+      # Your code here to generate graph2
+      shet_rgcme_plot <- shet_rgcme_plot %>%
+        add_trace(name = 'all protein coding genes',
+                  data = gene_constraint_metrics,
+                  y = ~shet_rgcme_mean,
+                  x = "protein coding genes", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", gene_constraint_metrics$hgnc_id ,
+                                    "\n Upper: ", gene_constraint_metrics$shet_rgcme_upper,
+                                    "\n Lower: ", gene_constraint_metrics$shet_rgcme_lower))
+
+      shet_rgcme_plot
+    } else {
+      # Return NULL or an empty plot when the checkbox is not checked
+      shet_rgcme_plot
+    }
+  })
+
+    # SHET POSTERIOR -----------------------------------------------------------------------------------
+  output$gene_constraint_shet_posterior <- renderPlotly({
+    # JAX
+    jax_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+
+    # NWU
+    nwu_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+
+    # MSK
+    msk_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+
+    #UCSF
+    ucsf_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+
+    # All protein coding
+    gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+
+    # all morphic
+    gene_constraint_metrics_morphic <-  readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+
+    jax_plot_text <- 'tbc'
+    nwu_plot_text <- 'tbc'
+    msk_plot_text <- 'tbc'
+    ucsf_plot_text <- 'tbc'
+    plot_text <- 'tbc'
+    # Load hgnc ID input
+    user_input_hgnc_id <- input$search_hgnc_id_seq
+
+    center <- input$center_gene_constraint_seq
+
+    hline <- function(y = 0, color = "grey") {
+      list(
+        type = "line",
+        x0 = 0,
+        x1 = 1,
+        xref = "paper",
+        y0 = y,
+        y1 = y,
+        line = list( dash = "dash",color = color)
+      )
+    }
+
+    threshold_value <- 0.1
+    if (center == "jax") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_post_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    } else if (center == "nwu") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_post_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    } else if (center == "msk") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_post_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    } else if (center == "all morphic") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_post_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+    } else if (center == "all centers") {
+      ### PLOT_TEXT NEEDS MODIFYING
+      shet_rgcme_plot <- jax_gene_constraint_seq %>%
+        plot_ly(name = "JAX", y = ~shet_post_mean, x = "JAX", type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", jax_gene_constraint_seq$hgnc_id, "<br> shet_post_mean", jax_gene_constraint_seq$shet_post_mean,
+                                                      "\n", jax_plot_text)) %>%
+        add_trace(name = 'MSK',
+                  data = msk_gene_constraint_seq,
+                  y = ~shet_post_mean,
+                  x = "MSK", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", msk_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", msk_gene_constraint_seq$shet_post_mean, "\n", msk_plot_text)) %>%
+        add_trace(name = 'NWU',
+                  data = nwu_gene_constraint_seq,
+                  y = ~shet_post_mean,
+                  x = "NWU", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", nwu_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", nwu_gene_constraint_seq$shet_post_mean, "\n", nwu_plot_text)) %>%
+        add_trace(name = 'UCSF',
+                  data = ucsf_gene_constraint_seq,
+                  y = ~shet_post_mean,
+                  x = "UCSF", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", ucsf_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", ucsf_gene_constraint_seq$shet_post_mean, "\n", ucsf_plot_text))
+
+    } else {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~shet_post_mean, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    }
+
+    ###############
+
+    # if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+    #
+    #   shet_rgcme_plot <- shet_rgcme_plot %>%
+    #     add_trace(name = user_input_hgnc_id,
+    #               y = gene_constraint_metrics$shet_post_mean[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+    #               hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+    #                                 "\n Upper: ", gene_constraint_metrics$shet_post_upper_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+    #                                 "\n Lower: ", gene_constraint_metrics$shet_post_lower_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+    #   shet_rgcme_plot
+    # }
+
+    if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+      if (center == "all centers") {
+
+        shet_rgcme_plot <- shet_rgcme_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$shet_post_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'JAX', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n shet_post_mean :", gene_constraint_metrics_morphic$shet_post_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$shet_post_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'NWU', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n shet_post_mean :", gene_constraint_metrics_morphic$shet_post_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$shet_post_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'MSK', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n shet_post_mean :", gene_constraint_metrics_morphic$shet_post_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$shet_post_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'UCSF', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n shet_post_mean :", gene_constraint_metrics_morphic$shet_post_mean[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id]))
+        shet_rgcme_plot
+
+
+      } else {
+
+        shet_rgcme_plot <- shet_rgcme_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics$shet_post_mean[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+                                      "\n Upper: ", gene_constraint_metrics$shet_post_upper_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+                                      "\n Lower: ", gene_constraint_metrics$shet_post_lower_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+        shet_rgcme_plot
+      }
+
+
+    }
+
+    # Add protein coding genes trace if Checkbox is Checked
+    if (input$compare_protein_coding_genes_gene_constraint_seq) {
+      # Code to generate graph2 when the checkbox is checked
+      # ...
+      # Your code here to generate graph2
+      shet_rgcme_plot <- shet_rgcme_plot %>%
+        add_trace(name = 'all protein coding genes',
+                  data = gene_constraint_metrics,
+                  y = ~shet_post_mean,
+                  x = "protein coding genes", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", gene_constraint_metrics$hgnc_id ,
+                                    "\n Upper: ", gene_constraint_metrics$shet_post_upper_95,
+                                    "\n Lower: ", gene_constraint_metrics$shet_post_lower_95))
+
+      shet_rgcme_plot
+    } else {
+      # Return NULL or an empty plot when the checkbox is not checked
+      shet_rgcme_plot
+    }
+  })
+
+    # SCONES -----------------------------------------------------------------------------------
+  output$gene_constraint_scones <- renderPlotly({
+    # JAX
+    jax_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+
+    # NWU
+    nwu_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+
+    # MSK
+    msk_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+
+    #UCSF
+    ucsf_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+
+    # All protein coding
+    gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+
+    # all morphic
+    gene_constraint_metrics_morphic <-  readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+
+    jax_plot_text <- 'tbc'
+    nwu_plot_text <- 'tbc'
+    msk_plot_text <- 'tbc'
+    ucsf_plot_text <- 'tbc'
+    plot_text <- 'tbc'
+    # Load hgnc ID input
+    user_input_hgnc_id <- input$search_hgnc_id_seq
+
+    center <- input$center_gene_constraint_seq
+
+    hline <- function(y = 0, color = "grey") {
+      list(
+        type = "line",
+        x0 = 0,
+        x1 = 1,
+        xref = "paper",
+        y0 = y,
+        y1 = y,
+        line = list( dash = "dash",color = color)
+      )
+    }
+
+    threshold_value <- 0.1
+    if (center == "jax") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~scones_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    } else if (center == "nwu") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~scones_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    } else if (center == "msk") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~scones_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    } else if (center == "all morphic") {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~scones_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+    } else if (center == "all centers") {
+      ### PLOT_TEXT NEEDS MODIFYING
+      shet_rgcme_plot <- jax_gene_constraint_seq %>%
+        plot_ly(name = "JAX", y = ~scones_score, x = "JAX", type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", jax_gene_constraint_seq$hgnc_id, "<br> scones_score", jax_gene_constraint_seq$scones_score,
+                                                      "\n", jax_plot_text)) %>%
+        add_trace(name = 'MSK',
+                  data = msk_gene_constraint_seq,
+                  y = ~scones_score,
+                  x = "MSK", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", msk_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", msk_gene_constraint_seq$scones_score, "\n", msk_plot_text)) %>%
+        add_trace(name = 'NWU',
+                  data = nwu_gene_constraint_seq,
+                  y = ~scones_score,
+                  x = "NWU", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", nwu_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", nwu_gene_constraint_seq$scones_score, "\n", nwu_plot_text)) %>%
+        add_trace(name = 'UCSF',
+                  data = ucsf_gene_constraint_seq,
+                  y = ~scones_score,
+                  x = "UCSF", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", ucsf_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", ucsf_gene_constraint_seq$scones_score, "\n", ucsf_plot_text))
+
+    } else {
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~scones_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+
+    }
+
+    ###############
+
+    # if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+    #
+    #   shet_rgcme_plot <- shet_rgcme_plot %>%
+    #     add_trace(name = user_input_hgnc_id,
+    #               y = gene_constraint_metrics$scones_score[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+    #               hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+    #                                 "\n Upper: ", gene_constraint_metrics$shet_post_upper_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+    #                                 "\n Lower: ", gene_constraint_metrics$shet_post_lower_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+    #   shet_rgcme_plot
+    # }
+
+    if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+      if (center == "all centers") {
+
+        shet_rgcme_plot <- shet_rgcme_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$scones_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'JAX', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n scones_score :", gene_constraint_metrics_morphic$scones_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$scones_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'NWU', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n scones_score :", gene_constraint_metrics_morphic$scones_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$scones_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'MSK', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n scones_score :", gene_constraint_metrics_morphic$scones_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$scones_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'UCSF', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n scones_score :", gene_constraint_metrics_morphic$scones_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id]))
+        shet_rgcme_plot
+
+
+      } else {
+
+        shet_rgcme_plot <- shet_rgcme_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics$scones_score[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+                                      "\n Upper: ", gene_constraint_metrics$shet_post_upper_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+                                      "\n Lower: ", gene_constraint_metrics$shet_post_lower_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+        shet_rgcme_plot
+      }
+
+
+    }
+
+    # Add protein coding genes trace if Checkbox is Checked
+    if (input$compare_protein_coding_genes_gene_constraint_seq) {
+      # Code to generate graph2 when the checkbox is checked
+      # ...
+      # Your code here to generate graph2
+      shet_rgcme_plot <- shet_rgcme_plot %>%
+        add_trace(name = 'all protein coding genes',
+                  data = gene_constraint_metrics,
+                  y = ~scones_score,
+                  x = "protein coding genes", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", gene_constraint_metrics$hgnc_id ,
+                                    "\n Upper: ", gene_constraint_metrics$shet_post_upper_95,
+                                    "\n Lower: ", gene_constraint_metrics$shet_post_lower_95))
+
+      shet_rgcme_plot
+    } else {
+      # Return NULL or an empty plot when the checkbox is not checked
+      shet_rgcme_plot
+    }
+  })
+
+    # DOMINO -----------------------------------------------------------------------------------
   output$gene_constraint_domino <- renderPlotly({
+    # JAX
+    jax_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+
+    # NWU
+    nwu_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+
+    # MSK
+    msk_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+
+    #UCSF
+    ucsf_gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+
+    # All protein coding
     gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
 
-    center <- input$center
+    # all morphic
+    gene_constraint_metrics_morphic <-  readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+
+    jax_plot_text <- 'tbc'
+    nwu_plot_text <- 'tbc'
+    msk_plot_text <- 'tbc'
+    ucsf_plot_text <- 'tbc'
+    plot_text <- 'tbc'
+    # Load hgnc ID input
+    user_input_hgnc_id <- input$search_hgnc_id_seq
+
+    center <- input$center_gene_constraint_seq
+
+    hline <- function(y = 0, color = "grey") {
+      list(
+        type = "line",
+        x0 = 0,
+        x1 = 1,
+        xref = "paper",
+        y0 = y,
+        y1 = y,
+        line = list( dash = "dash",color = color)
+      )
+    }
+
+    threshold_value <- 0.1
     if (center == "jax") {
-
-      gene_constraint_jax <- readRDS("./rda_data/gene_constraint_jax.rda")
-
-
-      gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_jax$domino_score,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_jax.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~domino_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "nwu") {
-
-      gene_constraint_nwu <- readRDS("./rda_data/gene_constraint_nwu.rda")
-
-
-      gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_nwu$domino_score,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_nwu.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~domino_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "msk") {
-
-      gene_constraint_msk <- readRDS("./rda_data/gene_constraint_msk.rda")
-
-
-      gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_msk$domino_score,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_msk.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~domino_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
 
     } else if (center == "all morphic") {
-
-      gene_constraint_all_morphic <- readRDS("./rda_data/gene_constraint_metrics_morphic_1006.rda")
-
-
-      gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
-
-        add_histogram(x = ~gene_constraint_all_morphic$domino_score,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_metrics_morphic.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~domino_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
+    } else if (center == "all centers") {
+      ### PLOT_TEXT NEEDS MODIFYING
+      shet_rgcme_plot <- jax_gene_constraint_seq %>%
+        plot_ly(name = "JAX", y = ~domino_score, x = "JAX", type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID :", jax_gene_constraint_seq$hgnc_id, "<br> domino_score", jax_gene_constraint_seq$domino_score,
+                                                      "\n", jax_plot_text)) %>%
+        add_trace(name = 'MSK',
+                  data = msk_gene_constraint_seq,
+                  y = ~domino_score,
+                  x = "MSK", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", msk_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", msk_gene_constraint_seq$domino_score, "\n", msk_plot_text)) %>%
+        add_trace(name = 'NWU',
+                  data = nwu_gene_constraint_seq,
+                  y = ~domino_score,
+                  x = "NWU", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", nwu_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", nwu_gene_constraint_seq$domino_score, "\n", nwu_plot_text)) %>%
+        add_trace(name = 'UCSF',
+                  data = ucsf_gene_constraint_seq,
+                  y = ~domino_score,
+                  x = "UCSF", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", ucsf_gene_constraint_seq$hgnc_id , "\nMean gene effect score :", ucsf_gene_constraint_seq$domino_score, "\n", ucsf_plot_text))
 
     } else {
-
-      gene_constraint_ucsf <- readRDS("./rda_data/gene_constraint_jax.rda")
-
-
-      gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
-        add_histogram(x = ~gene_constraint_ucsf$domino_score,
-                      hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
-                      name = "Morphic") %>%
-
-        layout(barmode = "stack",
-               title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
-               xaxis = list(title = ("Score"),
-                            zeroline = FALSE),
-               yaxis = list(title = "Number of Genes",
-                            zeroline = FALSE))
+      gene_constraint_seq <- readRDS('./rda_data/gene_constraint_ucsf.rda')
+      shet_rgcme_plot <- gene_constraint_seq %>%
+        plot_ly(name = center, y = ~domino_score, x = center, type = "violin",
+                hoverinfo = "text", hovertext = paste("HGNC ID: ", gene_constraint_seq$hgnc_id, "<br> Upper: ", gene_constraint_seq$shet_post_upper_95,
+                                                      "\n Lower: ", gene_constraint_seq$shet_post_lower_95)) %>%
+        layout(shapes = list(hline(threshold_value)))
 
     }
 
-    if (input$compare_protein_coding_genes_gene_constraint) {
-      gene_constraint_domino <- gene_constraint_domino %>%
-        add_histogram(x = ~gene_constraint_metrics$domino_score,
-                      hovertemplate = "Number of protein coding Genes: %{y} <extra></extra>",
-                      name = "Protein coding genes")
-      # marker = list(color = "rgb(0, 119, 182)",
-      #               line = list(color = "rgb(202, 240, 248)",
-      #                           width = 2))) %
+    ###############
 
-      gene_constraint_domino
-    } else {
-      gene_constraint_domino
+    # if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+    #
+    #   shet_rgcme_plot <- shet_rgcme_plot %>%
+    #     add_trace(name = user_input_hgnc_id,
+    #               y = gene_constraint_metrics$domino_score[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+    #               hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+    #                                 "\n Upper: ", gene_constraint_metrics$shet_post_upper_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+    #                                 "\n Lower: ", gene_constraint_metrics$shet_post_lower_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+    #   shet_rgcme_plot
+    # }
+
+    if (!is.null(user_input_hgnc_id) && user_input_hgnc_id != "") {
+      if (center == "all centers") {
+
+        shet_rgcme_plot <- shet_rgcme_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$domino_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'JAX', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n domino_score :", gene_constraint_metrics_morphic$domino_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$domino_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'NWU', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n domino_score :", gene_constraint_metrics_morphic$domino_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$domino_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'MSK', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n domino_score :", gene_constraint_metrics_morphic$domino_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id])) %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics_morphic$domino_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id], x = 'UCSF', type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID :", user_input_hgnc_id,
+                                      "\n domino_score :", gene_constraint_metrics_morphic$domino_score[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id],
+                                      "\n", plot_text[gene_constraint_metrics_morphic$hgnc_id == user_input_hgnc_id]))
+        shet_rgcme_plot
+
+
+      } else {
+
+        shet_rgcme_plot <- shet_rgcme_plot %>%
+          add_trace(name = user_input_hgnc_id,
+                    y = gene_constraint_metrics$domino_score[gene_constraint_metrics$hgnc_id == user_input_hgnc_id], x = center, type = "scatter", mode = 'markers', hoverinfo = "text",
+                    hovertext = paste("HGNC ID: ", user_input_hgnc_id,
+                                      "\n Upper: ", gene_constraint_metrics$shet_post_upper_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id],
+                                      "\n Lower: ", gene_constraint_metrics$shet_post_lower_95[gene_constraint_metrics$hgnc_id == user_input_hgnc_id]))
+        shet_rgcme_plot
+      }
+
+
     }
 
+    # Add protein coding genes trace if Checkbox is Checked
+    if (input$compare_protein_coding_genes_gene_constraint_seq) {
+      # Code to generate graph2 when the checkbox is checked
+      # ...
+      # Your code here to generate graph2
+      shet_rgcme_plot <- shet_rgcme_plot %>%
+        add_trace(name = 'all protein coding genes',
+                  data = gene_constraint_metrics,
+                  y = ~domino_score,
+                  x = "protein coding genes", hoverinfo = "text",
+                  hovertext = paste("HGNC ID :", gene_constraint_metrics$hgnc_id ,
+                                    "\n Upper: ", gene_constraint_metrics$shet_post_upper_95,
+                                    "\n Lower: ", gene_constraint_metrics$shet_post_lower_95))
+
+      shet_rgcme_plot
+    } else {
+      # Return NULL or an empty plot when the checkbox is not checked
+      shet_rgcme_plot
+    }
   })
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # DATA INFORMATION TABLES
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #PLOT NOTES --------
+  # THRESHOLDS
+  # PLOT NAMES in code
+  # GENE symbol search
+  # legends
+  # round hovert text values
+
+  # ### SHET MEAN
+  # output$gene_constraint_mean_shet <- renderPlotly({
+  #   gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+  #
+  #   center <- input$center
+  #   if (center == "jax") {
+  #
+  #     gene_constraint_jax <- readRDS("./rda_data/gene_constraint_jax.rda")
+  #
+  #
+  #     gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_jax$shet_rgcme_mean,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Mean Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else if (center == "nwu") {
+  #
+  #     gene_constraint_nwu <- readRDS("./rda_data/gene_constraint_nwu.rda")
+  #
+  #
+  #     gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_nwu$shet_rgcme_mean,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Mean Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else if (center == "msk") {
+  #
+  #     gene_constraint_msk <- readRDS("./rda_data/gene_constraint_msk.rda")
+  #
+  #
+  #     gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_msk$shet_rgcme_mean,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Mean Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else if (center == "all morphic") {
+  #
+  #     gene_constraint_all_morphic <- readRDS("./rda_data/gene_constraint_metrics_morphic_1006.rda")
+  #
+  #
+  #     gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_all_morphic$shet_rgcme_mean,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Mean Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else {
+  #
+  #     gene_constraint_ucsf <- readRDS("./rda_data/gene_constraint_ucsf.rda")
+  #
+  #
+  #     gene_constraint_mean_shet <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_ucsf$shet_rgcme_mean,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "SHET: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Mean Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   }
+  #
+  #   if (input$compare_protein_coding_genes_gene_constraint) {
+  #     gene_constraint_mean_shet <- gene_constraint_mean_shet %>%
+  #       add_histogram(x = ~gene_constraint_metrics$shet_rgcme_mean,
+  #                     hovertemplate = "Number of protein coding Genes: %{y} <extra></extra>",
+  #                     name = "Protein coding genes")
+  #     # marker = list(color = "rgb(0, 119, 182)",
+  #     #               line = list(color = "rgb(202, 240, 248)",
+  #     #                           width = 2))) %
+  #
+  #     gene_constraint_mean_shet
+  #   } else {
+  #     gene_constraint_mean_shet
+  #   }
+  #
+  # })
+  #
+  # ### OE MIS gene_constraint_oe_mis
+  # output$gene_constraint_oe_mis <- renderPlotly({
+  #   gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+  #
+  #   center <- input$center
+  #   if (center == "jax") {
+  #
+  #     gene_constraint_jax <- readRDS("./rda_data/gene_constraint_jax.rda")
+  #
+  #
+  #     gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_jax$oe_mis,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else if (center == "nwu") {
+  #
+  #     gene_constraint_nwu <- readRDS("./rda_data/gene_constraint_nwu.rda")
+  #
+  #
+  #     gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_nwu$oe_mis,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else if (center == "msk") {
+  #
+  #     gene_constraint_msk <- readRDS("./rda_data/gene_constraint_msk.rda")
+  #
+  #
+  #     gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_msk$oe_mis,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else if (center == "all morphic") {
+  #
+  #     gene_constraint_all_morphic <- readRDS("./rda_data/gene_constraint_metrics_morphic_1006.rda")
+  #
+  #
+  #     gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_all_morphic$oe_mis,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else {
+  #
+  #     gene_constraint_ucsf <- readRDS("./rda_data/gene_constraint_jax.rda")
+  #
+  #
+  #     gene_constraint_oe_mis <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_ucsf$oe_mis,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "O/E MIS: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   }
+  #
+  #   if (input$compare_protein_coding_genes_gene_constraint) {
+  #     gene_constraint_oe_mis <- gene_constraint_oe_mis %>%
+  #       add_histogram(x = ~gene_constraint_metrics$oe_mis,
+  #                     hovertemplate = "Number of protein coding Genes: %{y} <extra></extra>",
+  #                     name = "Protein coding genes")
+  #     # marker = list(color = "rgb(0, 119, 182)",
+  #     #               line = list(color = "rgb(202, 240, 248)",
+  #     #                           width = 2))) %
+  #
+  #     gene_constraint_oe_mis
+  #   } else {
+  #     gene_constraint_oe_mis
+  #   }
+  #
+  # })
+  #
+  # ### DOMINO
+  # output$gene_constraint_domino <- renderPlotly({
+  #   gene_constraint_metrics <- readRDS("./rda_data/gene_constraint_metrics.rda")
+  #
+  #   center <- input$center
+  #   if (center == "jax") {
+  #
+  #     gene_constraint_jax <- readRDS("./rda_data/gene_constraint_jax.rda")
+  #
+  #
+  #     gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_jax$domino_score,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else if (center == "nwu") {
+  #
+  #     gene_constraint_nwu <- readRDS("./rda_data/gene_constraint_nwu.rda")
+  #
+  #
+  #     gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_nwu$domino_score,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else if (center == "msk") {
+  #
+  #     gene_constraint_msk <- readRDS("./rda_data/gene_constraint_msk.rda")
+  #
+  #
+  #     gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_msk$domino_score,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else if (center == "all morphic") {
+  #
+  #     gene_constraint_all_morphic <- readRDS("./rda_data/gene_constraint_metrics_morphic_1006.rda")
+  #
+  #
+  #     gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
+  #
+  #       add_histogram(x = ~gene_constraint_all_morphic$domino_score,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   } else {
+  #
+  #     gene_constraint_ucsf <- readRDS("./rda_data/gene_constraint_jax.rda")
+  #
+  #
+  #     gene_constraint_domino <- plot_ly(xbins = list(size = input$bins)) %>%
+  #       add_histogram(x = ~gene_constraint_ucsf$domino_score,
+  #                     hovertemplate = "Number of MorPhiC Genes: %{y} <extra></extra>",
+  #                     name = "Morphic") %>%
+  #
+  #       layout(barmode = "stack",
+  #              title = list(text = "DOMINO: Distribution of Mean scores", y = 0.99, x = 0.5),
+  #              xaxis = list(title = ("Score"),
+  #                           zeroline = FALSE),
+  #              yaxis = list(title = "Number of Genes",
+  #                           zeroline = FALSE))
+  #
+  #   }
+  #
+  #   if (input$compare_protein_coding_genes_gene_constraint) {
+  #     gene_constraint_domino <- gene_constraint_domino %>%
+  #       add_histogram(x = ~gene_constraint_metrics$domino_score,
+  #                     hovertemplate = "Number of protein coding Genes: %{y} <extra></extra>",
+  #                     name = "Protein coding genes")
+  #     # marker = list(color = "rgb(0, 119, 182)",
+  #     #               line = list(color = "rgb(202, 240, 248)",
+  #     #                           width = 2))) %
+  #
+  #     gene_constraint_domino
+  #   } else {
+  #     gene_constraint_domino
+  #   }
+  #
+  # })
+
+  #  # DATA INFORMATION TABLES-----------------------------------------------------------------------------------
 
   # Render each table using DT::renderDataTable and pass it to the UI
   output$table_gene_identifiers <- DT::renderDataTable({
@@ -2309,9 +3599,7 @@ server <- function(input, output) {
     datatable(data_info_tables[[10]], rownames = FALSE, class = "display nowrap cell-border",  options = list(dom = 't', paging = FALSE, searching = FALSE, ordering = FALSE, rownames = FALSE))
   })
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # MORPHIC INFORMATION TAB
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #  # MORPHIC INFORMATION TAB-----------------------------------------------------------------------------------
 
   output$morphic_description <- renderUI({
     HTML('
@@ -2344,9 +3632,7 @@ server <- function(input, output) {
     <p>Luke Gilbert, Ph.D. University of California, San Francisco. Spatial multiomic mapping of gene function with CRISPRoff.</p>
   ')
   })
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # TEXT ABOVE VISUALISATIONS
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #  # TEXT ABOVE VISUALISATIONS-----------------------------------------------------------------------------------
 
   output$upset_text <- renderUI({
     HTML("<div style='background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;'>
@@ -2393,6 +3679,7 @@ server <- function(input, output) {
   output$go_text <- renderUI({
     HTML('<div style="background-color: white; color: black; padding: 10px; text-align: left; font-size: 14px;">
           <p>Gene Ontology-based semantic similarity  Data:</p>
+          <p>Plot GO terms as scattered points. Distances between points represent the similarity between terms, and axes are the first 2 components of applying a PCoA to the (di)similarity matrix. Size of the point represents the provided scores or, in its absence, the number of genes the GO term contains.</p>
           <p>Data source: <a href="http://geneontology.org/docs/download-ontology/" target="_blank">Gene Ontology Data</a></p>
         </div>')
 
@@ -2437,9 +3724,7 @@ server <- function(input, output) {
         </div>')
   })
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # TABLES BELOW VISUALISATIONS
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #  # TABLES BELOW VISUALISATIONS-----------------------------------------------------------------------------------
 
   output$impc_data_table <- renderDT(server=FALSE,{
     datatable(
@@ -2643,7 +3928,5 @@ server <- function(input, output) {
 
 }
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# DEFINE THE APP (UI + SERVER)
+## DEFINE THE APP (UI + SERVER)-----------------------------------------------------------------------------------
 shinyApp(ui, server)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
