@@ -1,7 +1,9 @@
 # MorPhiC_RShinyApp
 RShiny App for browsing the MorPhiC gene list, meta-data and data visualisations.
 
-### Metadata
+Available at: https://morphic-genelist-app.shinyapps.io/shiny_genesetexplore/
+
+### Metadata & resources
 - Data production center (DPC) genes of interest 
 - [Gene Ontology](http://geneontology.org/)
 - [PANTHERdb](https://www.pantherdb.org/)
