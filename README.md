@@ -20,7 +20,6 @@ Available at: https://morphic-genelist-app.shinyapps.io/shiny_genesetexplore/
   - [Development disorder gene2phenotpye (DDG2P)](https://www.ebi.ac.uk/gene2phenotype)
 
 ### To run the app locally...
-
 Set your working directroy to the folder containing **app.R** and **rda_data**
 
 Run in the console `shiny::runApp()`
