@@ -1,5 +1,5 @@
 # MorPhiC_RShinyApp
-RShiny App for browsing the MorPhiC gene list, meta-data and data visualisations.
+RShiny App for browsing the [MorPhiC](https://morphic.bio/) gene list, meta-data and data visualisations.
 
 Available at: https://morphic-genelist-app.shinyapps.io/shiny_genesetexplore/
 
@@ -19,7 +19,7 @@ Available at: https://morphic-genelist-app.shinyapps.io/shiny_genesetexplore/
   - [Online Mendelian Inheritance in Man (OMIM)](https://www.omim.org/)
   - [Development disorder gene2phenotpye (DDG2P)](https://www.ebi.ac.uk/gene2phenotype)
 
-## To run the app...
+## To run the app locally...
 
 Set your working directroy to the folder containing **app.R** and **rda_data**
 
