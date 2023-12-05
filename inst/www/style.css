@@ -1,0 +1,330 @@
+/* Apply CSS only to the specific div with the class "form-group shiny-input-container" */
+ * { font-family: "Arial"; }
+ * { font-weight: bold; }
+ 
+.shiny-input-container {
+  margin: 0 auto;
+  width: 100%; 
+}
+
+/* Center the div with class shiny-bound-output */
+.shiny-bound-output {
+  /* margin: 0 auto;  Apply margins with 10px top and bottom, centered horizontally */
+  text-align: left; /* Left-align the text within the div */
+  width: 600px; 
+  background-color: white;/* Set the width to 300 pixels */
+}
+
+
+.custom-container {
+  margin: 10px auto; /* Apply 10px top and bottom margin and center it horizontally */
+  background-color: lightgray; /* Set the background color to light gray */
+  padding: 20px; /* Add padding to increase the size of the container */
+}
+
+.container-text-center {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+#genes-gene_search_text {
+  padding: 15px; /* Increase the padding value */
+  border-radius: 0.25em 0 0 0.25em !important;
+  font-size: 16px; /* Increase the font size */
+}
+
+.sw-dropdown {
+  display: flex;
+  /* justify-content: center; */
+  align-items: left;
+  text-align: left;
+}
+
+/* Style the DataTable */
+.dataTables_wrapper {
+  position: relative !important;
+  text-align: center !important;
+}
+
+
+
+.dropdown-toggle {
+  height: 45px !important;
+  display: flex !important; /* Use flex layout */
+  align-items: center !important; /* Center vertically */
+  line-height: 45px !important; /* Set the line-height to match the button height */
+}
+
+.dataTables_length {
+  height: 44.6307px !important;
+  line-height: 44.6307px !important; /* Set the line-height to match the button height */
+  position: absolute !important;
+  top: 0 !important;
+  left: 50% !important; /* Center the element horizontally */
+  transform: translateX(-50%) !important; /* Move it back by 50% of its own width */
+  text-align: center !important;
+}
+
+/* Style the label inside .dataTables_length */
+.dataTables_length label {
+  background-color: gray !important; /* Set the background color to grey */
+  color: white !important; /* Set the text color to white */
+  font-weight: bold !important; /* Make the text bold */
+  padding: 5px !important;
+  border-radius: 5px !important; /* Add rounded corners */
+}
+
+
+
+/* Style the DataTable search bar */
+.dataTables_filter input[type="search"] {
+  background-color: White !important; /* Set the background color to a dark color */
+  color: Black !important; /* Set the text color to white */
+  /* border: 2px solid gray !important;  Add a gray border */
+  border-radius: 5px !important;
+  /* padding: 5px !important; */
+  font-weight: bold !important; /* Make the text bold */
+  line-height: 35px !important; /* Set the line-height to match the button height */
+  height: 35px !important; /* Set the line-height to match the button height */
+}
+
+/* Style the DataTable search button (if needed) */
+.dataTables_filter input[type="search"]::placeholder {
+  color: #ccc !important /* Set the placeholder text color */
+}
+
+.dataTables_filter label {
+  background-color: #0062cc !important; /* Set the background color to grey */
+  color: white !important; /* Set the text color to white */
+  font-weight: bold !important; /* Make the text bold */
+  border-radius: 5px !important; /* Add rounded corners */
+  padding: 5px !important;
+}
+
+.form-control.form-control-sm {
+  padding: 0px;
+}
+/* Style the Download Button */
+.btn.btn-secondary.buttons-collection.dropdown-toggle {
+  background-color: #0062cc !important; /* Set the background color to grey */
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+
+
+
+/* Style the Download Button */
+.dt-buttons {
+  background-color: #0062cc !important; /* Set the background color to grey */
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  height: 35px !important; /* Set the line-height to match the button height */
+}
+
+
+.dataTables_scrollBody {
+  width: 100% !important; /* Set your desired width */
+  height: 1111px !important; /* Set your desired height */
+  overflow: auto !important; /* Enable both horizontal and vertical scrollbars when content overflows */
+      /* border: 1px solid #ccc; Add a border for visual separation */
+}
+
+
+
+.dataTables_scrollHead {
+  vertical-align: top !important; /* Align content to the top */
+  margin-top: 0 !important;       /* Remove top margin */
+  padding-top: 0 !important; 
+}
+
+.dataTables_scrollHeadInner {
+    color: white !important;/* Remove top padding */
+}
+
+
+/* Define alternating row colors */
+tbody tr:nth-child(odd) {
+  background-color: #F8F8F8 !important;
+}
+
+tbody tr:nth-child(even) {
+  background-color: white !important;
+}
+
+/* Style for the tick (√) symbol 
+.tick {
+  color: green !important;
+}
+
+/* Style for the cross (✗) symbol
+.cross {
+  color: red !important;
+}
+*/
+
+/* Style for the tick icon */
+.tick::before {
+  content: '✔' !important; /* Unicode character for a checkmark (tick) */
+  color: green !important; /* Set the color of the tick icon */
+  font-size: 1.2em !important; /* Adjust the font size as needed */
+  margin-right: 5px !important; /* Add some spacing to the right of the icon */
+}
+
+/* styles.css */
+
+/* Target the input element with the "form-control" and "form-control-sm" classes */
+.form-control.form-control-sm {
+  height: 30.81px !important;
+}
+
+#tables-files_uploaded {
+  width: 260px;
+}
+
+#tables-file_names {
+  width: 260px;
+}
+
+#tables-or {
+  width: 260px;
+}
+
+#tables-or_2 {
+  width: 260px;
+}
+
+#tables-select_data_table {
+  width: 260px;
+}
+
+#tables-show_selected_dpcs_header {
+  width: 260px;
+}
+
+#tables-show_selected_dpcs {
+  width: 260px;
+}
+
+#tables-show_selected_dpcs_header {
+  width: 260px;
+}
+
+.col.right-col.ml-2 {
+  border: 1px solid #000;
+  border-radius: 10px;
+  width: 260px;
+}
+/* custom.css */
+.top_table_1 {
+  border: 1px solid #000;
+  border-radius: 10px; /* Rounded corners */
+  padding: 10px; /* Add some padding */
+  width: 290px;
+  height: 172.81px;
+  /* Add any other custom styles you need for this div */
+}
+
+/* custom.css */
+.col.right-col {
+  border: 1px solid #000; /* Add border styles here */
+  border-radius: 10px; /* Rounded corners */
+  padding: 10px; /* Add some padding */
+  width: 260px;
+}
+
+.col {
+  padding: 0px; /* Add some padding */
+}
+
+.col-md-auto {
+  padding-left: 0px;
+}
+
+#search_right_col {
+  margin-left: 10px;
+}
+
+.col-md-auto.border.border-dark.rounded.mb-4 {
+  padding-left: 12px;
+}
+
+.scrollable-div {
+      width: 100%; /* Set your desired width */
+      height: 750px; /* Set your desired height */
+      overflow: auto; /* Enable both horizontal and vertical scrollbars when content overflows */
+      /* border: 1px solid #ccc; Add a border for visual separation */
+    }
+    
+#tables-clear_morphic_msg {
+  width: 260px;
+}
+
+.col.right-col.ml-2.custom-width-260px {
+  
+}
+
+#tables-show_cols_outer_div {
+  width: 260px;
+}
+
+.container {
+  width: 800px;
+}
+
+/*
+.btn.btn-secondary.buttons-collection.dropdown-toggle {
+  
+}
+*/
+
+.sidebar {
+  background-color: white !important;
+}
+
+.bslib-sidebar-layout > .collapse-toggle {
+    padding: 100px 0 !important;
+    margin-bottom: 300px !important;
+    background-color: white !important;
+}
+        
+.bslib-sidebar-layout > .collapse-toggle > .collapse-icon {
+    fill: blue !important;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Set the height of the .nav-item container */
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Set the height of the .nav-item container */
+}
+
+.table_top_header {
+  background-color: #0062cc !important;
+}
+
+.table_bottom_header {
+  background-color: #0b6ed9 !important;
+}
+
+/*
+.dataTables_wrapper {
+  display: inline-block;
+  width: auto;
+  height: auto !important;
+}
+*/
+
+.table_entire_header {
+    color: white !important;
+}
