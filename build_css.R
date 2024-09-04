@@ -1,0 +1,5 @@
+library(rhino)
+library(rstudioapi)
+rhino::build_sass()
+rstudioapi::executeCommand("restartR")
+options(shiny.autoreload = TRUE)

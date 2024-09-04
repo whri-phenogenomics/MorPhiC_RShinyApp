@@ -1,0 +1,147 @@
+box::use(
+  htmltools[tagList, p]
+)
+
+#' @export
+getIndex <- function() {
+  return(
+    index <- list(
+      'gene_ids' = 1:4,
+      'mouse' = 5:10,
+      'disease' = 11:21,
+      'constraint_cell' = 22:25,
+      'constraint_pop' = 26:35
+    )
+  )
+}
+
+#' @export
+getNiceColNames <- function() {
+  return(
+    nice_col_names <- c(
+      'Gene symbol', 'Gene name', 'Gene group', 'Entrez ID',
+      'IMPC viability', 'IMPC zygosity', 'IMPC phenotypes', 'Windows of Lethality',
+      # 'MGI viability',
+      'Ortholog mapping',
+      'Mode of Inheritance', 'Disease type', 'Molecular basis', 'OMIM Phenotype ID', 'Phenotype', 'Lethal gene', 'Earliest age of death category', 'Disease', 'Allelic requirement', 'Confidence category', 'Organ specificity',
+      'Percentage of samples essential in', 'Mean DepMap Gene Effect score', 'Bayes factor (MEF)', 'Bayes factor (Laminin)',
+      'gnomAD LOEUF', 'gnomAD missense score', 'AlphaMissense mean pathogenicity',
+      # 'Shet (RGC-ME)',
+      'Shet (GeneBayes)', 'DOMINO', 'SCoNeS', 'GISMO Median score', 'GISMO Decile', 'GISMO-mis Median score', 'GISMO-mis Decile'
+    )
+  )
+}
+
+#' @export
+getFooters <- function() {
+  return(
+    footers = list(list("IMPC 21.0" = 'http://ftp.ebi.ac.uk/pub/plots_dfbases/impc/all-plots_df-releases/release-21.0/results/viability.csv.gz',
+                        "IMPC 21.0" = 'http://ftp.ebi.ac.uk/pub/plots_dfbases/impc/all-plots_df-releases/release-21.0/results/genotype-phenotype-assertions-ALL.csv.gz',
+                        'IMPC 21.0' = 'http://ftp.ebi.ac.uk/pub/plots_dfbases/impc/all-plots_df-releases/release-21.0/results/genotype-phenotype-assertions-ALL.csv.gz',
+                        "Cacheiro et al. 2022" = 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9563108/',
+                        # 'MGI' = 'https://www.informatics.jax.org/downloads/reports/MGI_GenePheno.rpt',
+                        "GenTaR" = 'https://www.gentar.org/orthology-api/api/ortholog/write_to_tsv_file'
+    ),
+
+    list("OMIM" = 'https://www.omim.org/downloads',
+         "OMIM" = 'https://www.omim.org/downloads',
+         "OMIM" = 'https://www.omim.org/downloads',
+         "OMIM" = 'https://www.omim.org/downloads',
+         "OMIM" = 'https://www.omim.org/downloads',
+         "Cacheiro et al. 2024" = 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10802756/',
+         "Cacheiro et al. 2024" = 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10802756/',
+         "DDG2P" = 'http://ftp.ebi.ac.uk/pub/plots_dfbases/gene2phenotype/28_07_2023/DDG2P_28_7_2023.csv.gz',
+         "DDG2P" = 'http://ftp.ebi.ac.uk/pub/plots_dfbases/gene2phenotype/28_07_2023/DDG2P_28_7_2023.csv.gz',
+         "DDG2P" = 'http://ftp.ebi.ac.uk/pub/plots_dfbases/gene2phenotype/28_07_2023/DDG2P_28_7_2023.csv.gz',
+         "DDG2P" = 'http://ftp.ebi.ac.uk/pub/plots_dfbases/gene2phenotype/28_07_2023/DDG2P_28_7_2023.csv.gz'
+    ),
+    list("DepMap" = 'https://depmap.org/portal/download/all/',
+         "DepMap" = 'https://depmap.org/portal/download/all/',
+         'Mair et al. 2019' = 'https://www.sciencedirect.com/science/article/pii/S2211124719302128#app2',
+         'Mair et al. 2019' = 'https://www.sciencedirect.com/science/article/pii/S2211124719302128#app2'
+    ),
+
+    list("gnomAD v4.1" = 'https://gnomad.broadinstitute.org/downloads#v4-constraint',
+         "gnomAD v4.1" = 'https://gnomad.broadinstitute.org/downloads#v4-constraint',
+         'Cheng et al. 2023' = 'https://www.science.org/doi/10.1126/science.adg7492',
+         # "Sun et al. 2023" = 'https://pubmed.ncbi.nlm.nih.gov/37214792/',
+         'Zeng et al 2023' = 'https://www.biorxiv.org/content/10.1101/2023.05.19.541520v1',
+         "Quinodoz et al. 2017" = 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5630195/',
+         "Rapaport et al. 2021" = 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7826345/',
+         "Liao et al. 2024" = 'https://www.biorxiv.org/content/10.1101/2024.05.16.594531v1',
+         "Liao et al. 2024" = 'https://www.biorxiv.org/content/10.1101/2024.05.16.594531v1',
+         "Liao et al. 2024" = 'https://www.biorxiv.org/content/10.1101/2024.05.16.594531v1',
+         "Liao et al. 2024" = 'https://www.biorxiv.org/content/10.1101/2024.05.16.594531v1'
+    )
+
+
+    )
+  )
+}
+
+#' @export
+getPlotsInfo <- function() {
+  return(
+    plots_info = list(
+      tagList(
+        p('n.b. The number and percentage of genes displayed in bar charts is computed using only genes that have metadata annotations.'),
+        p('n.b. "Genes with data" and "Genes without data" Plots are based on if a gene has an assocaited piece of metadata.'),
+        p('IMPC viability: Outcome of gene knockout on mouse survival or ability to thrive'),
+        p('IMPC zygosity: Number of alleles knocked out in a mouse. Homozgous = both alleles knocked out, Heterozygous = one allele knocked out, Hemizygous = one allele knocked out in sex chromosome'),
+        p('IMPC phenotypes: Phenotypes observed in mouse knockout. Terms are described in the Mammalian Phenotype Ontology (MP)'),
+        p('Window of Lethality: Embryonic day when death occured. Early gestation lethal = E9.5, Mid gestation lethal = E12.5-15.5, Late gestation lethal = E15.5-18.5. plots_df was curated by Cacheiro et al. 2022'),
+        # p('MGI viability: Outcome of gene knockout on mouse survival'),
+        p('Ortholog mapping: Human-Mouse Ortholog relationship based on GenTaR pipeline')
+      ),
+
+      tagList(
+        p('n.b. The number and percentage of genes displayed in bar charts is computed using only genes that have metadata annotations'),
+        p('n.b. "Genes with data" and "Genes without data" Plots are based on if a gene has an assocaited piece of metadata.'),
+        p('Mode of inheritance: How the disease is passed to the next generation'),
+        p('Disease type: Clinical significance and impact of the disorder'),
+        p('Molecular basis: Details of the genetic mapping of the disorder'),
+        p('OMIM Phenotype ID: Unique ID linked to disorder'),
+        p('Phenotype: Name of disorder'),
+        p('Lethal gene: One of three lethality caregories acording to OMIM clinical records that were plots_df mined using a series of API queries of terms linked to lethality. plots_df was curated by Cacheiro et al. 2024'),
+        p('Earliest age of death category: One of seven lethality categories according to the earliest age at which death occured according to OMIM records.
+          L1: Prenatal death (HP:0034241); Death before birth
+          L1.1: Miscariage (HP:0005268); Spontaneous loss of a fetus before the 22th week of pregnancy
+          L1.2: Stillbirth (HP:0003826); Death of the fetus in utero after at least 22 weeks of gestation
+          L2: Neonatal death (HP:0003811); Death within the first 28 days of life
+          L3: Death in infancy (HP:0001522); Death within the first 24 months of life
+          L4: Death in childhood (HP:0003819); Death during childhood, defined here as between the ages of 2 and 10 years
+          L5: Death in adolescence (HP:0011421); Death during adolescence, the period between childhood and adulthood (roughly between the ages of 10 and 19 years)
+          L6: Death in adulthood (HP:0033763); Cessation of life at the age of 16 years or later
+          LU: Age of death undetermined. plots_df was curated by Cacheiro et al. 2024'),
+        p('Disease: Name of disorder'),
+        p('Allelic requirement: Number of mutated alleles in a gene needed to cause the disorder'),
+        p('Confidence category: Confidence of the gene-phenotype association'),
+        p('Organ specificity: Organ systems affected by disorder'),
+      ),
+
+      tagList(
+        p('Percentage of sample essential in: This was computed by calculating the number of different cancer cell lines depleted (using the -0.5 gene effect threshold) amongst all cancer cell lines'),
+        p('Mean DepMap Gene Effect score: For gene effect, a score less than -0.5 represents depletion in most cell lines, while less than -1 represents strong killing, outlined here: https://forum.depmap.org/t/depmap-genetic-dependencies-faq/131'),
+        p('Bayes factor (MEF): MEF and Laminin refer to the Mouse Embryonic Feeder cells and Laminin substrate used to grow H1-iCas9 human pluripotent stem cells (hPSCs). Bayes Factor (BF) scores represent a confidence measure as to whether a gene is essential, whereby a threshold of BF > 5 can be used to distinguish essential genes'),
+        p('Bayes factor (Laminin): MEF and Laminin refer to the Mouse Embryonic Feeder cells and Laminin substrate used to grow H1-iCas9 human pluripotent stem cells (hPSCs). Bayes Factor (BF) scores represent a confidence measure as to whether a gene is essential, whereby a threshold of BF > 5 can be used to distinguish essential genes')
+      ),
+
+      tagList(
+        p('gnomAD LOEUF: The loss-of-function observed/expected upper bound fraction (LOEUF) score is a continuous metric designed to demonstrate a gene’s intolerance to loss-of-function variation. Constrained genes are defined using the cut-off LOEUF < 0.6'),
+        p('gnomAD missense score: observed/expected ratio upper bound fraction for missense variants'),
+        p('AlphaMissense mean pathogenicity: This metric represents the probability of a gene being pathogenic, according to the 2023 AlphaMissense deep learning model developed by Cheng et al. 2023. Scores closer to 1 indicate higher likelihood of a gene variant being pathogenic'),
+        # p('Shet (RGC-ME): These metrics are derived from the RGC-ME plots_dfset, published by Sun et al. 2023, comprising 985,830 exomes from individuals of diverse ancestry. Here, Shet RGC-ME represents the selectin coefficient estimated per gene from heterozygous probability Loss of Function
+        #        (pLoF) variation amungst the RGC-ME plots_dfset. A Shet score greater than 0.075 indicates highly constrained genes'),
+        p('Shet (GeneBayes): These metrics are derived from the machine learning model GeneBayes, created by Zeng et al. 2023. Here, Shet posterior represents the Bayesian estimation of the selectin coefficient from heterzygous LoF carriers from the gnomAD (v2.1.1) plots_dfset. Higher Shet scores indicate more constrained genes'),
+        p('DOMINO: This metric was developed by Quinodoz et al. 2017 and assesses the likelihood of a gene to harbor dominant changes using the DOMINO machine learning model'),
+        p('SCoNeS: This metric was developed by Rapaport et al. 2021 and predicts the likelihood for a gene to underlie an Autosomal Dominant (AD) or Autosomal Recessive (AD) disorder. Thresholds of SCoNeS score > 0.75 and SCoNeS score < 0.25 are used
+               to determine genes are underlying AR and AD disorders respectivley'),
+        p('GISMO Median score: This metric was developed by Liao et al. 2024 and measures gene loss across mammals weighed by evolutionary distance relative to humans.'),
+        p('GISMO Decile: This is a bin associated to the GISMO score. The GISMO score was developed by Liao et al. 2024 and measures gene loss across mammals weighed by evolutionary distance relative to humans.'),
+        p('GISMO-mis Median score: This metric was developed by Liao et al. 2024 and quantifies the ratio of missense to synonymous variants across mammalian species for a given gene.'),
+        p('GISMO-mis Decile: This is a bin associated to the GISMO-mis score. The GISMO-mis score was developed by Liao et al. 2024 and quantifies the ratio of missense to synonymous variants across mammalian species for a given gene.')
+      )
+    )
+  )
+}
+

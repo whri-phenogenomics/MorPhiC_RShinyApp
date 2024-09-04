@@ -1,0 +1,10 @@
+name: morphic_gene_list
+title:
+username: morphic-genelist-app
+account: morphic-genelist-app
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11377337
+bundleId: 8990903
+url: https://whri-phenogenomics.shinyapps.io/morphic_gene_list/
+version: 1
