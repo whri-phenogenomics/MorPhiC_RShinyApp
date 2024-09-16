@@ -55,6 +55,7 @@ server <- function(id, gene_lists) {
     })
     
     observe({
+      req(length(input$select_lists) > 1)
       genes <- genes()
       set_size_max <- max(sapply(genes, function(x) length(x$gene_list))) + 50
       output$plot_id <- renderPlot({

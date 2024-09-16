@@ -63,7 +63,7 @@ server <- function(id, gene_lists, data, data_col_options, title) {
           multiple = FALSE
         ),
         fluidRow(
-          em('Note: Hover over a plot and click the expand button at the bottom right to display the plot full screen')
+          em('Note: Hover over a plot and click the expand button at the bottom right to display the plot in full screen')
         ),
         card(
           full_screen = TRUE,

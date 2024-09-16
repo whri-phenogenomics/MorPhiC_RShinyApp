@@ -15,7 +15,7 @@ ui <- function(id) {
   fluidRow(
     # em('Bubble size corresponds to level of enrichment, with the top few enriched terms labelled in black'),
     # checkboxInput(ns('checkbox'), 'Show/hide legend', TRUE),
-    em('Odds Ratio analysis to assess if each gene is list is enriched for Disease genes, genes lethal in IMPC Mouse Knockouts and genes essential in DepMap screenings.'),
+    em('Odds Ratio analysis to assess if each gene list is enriched for Disease genes, genes lethal in IMPC Mouse Knockouts and genes essential in DepMap screenings.'),
     em('Threshold (red dotted line): x=1'),
     uiOutput(ns('plots'))
   )

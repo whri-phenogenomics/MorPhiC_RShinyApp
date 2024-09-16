@@ -75,7 +75,7 @@ ui <- function(id) {
     theme = theme,
     footer = tags$footer(
       class = "footer",
-      "Developed by Queen Mary University of London as part of the DRACC: Updated 15th August 2024"
+      "Developed by Queen Mary University of London as part of the DRACC: Updated 11th September 2024"
     ),
     # Gene list ----
     nav_panel(
@@ -165,10 +165,10 @@ ui <- function(id) {
 #' @export
 server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    dpc_lists <- readRDS('./data/morphic_gene_lists2024-07-25.rda')
+    dpc_lists <- readRDS('./data/morphic_gene_lists2024-09-11.rda')
     # gene_list_table <- read.fst('./data/morphic_gene_list_table_2024-07-25.fst')
-    gene_list_table <- read.fst('./data/morphic_gene_list_table_2024-08-15.fst')
-    plots_df <- read.fst('./data/all_data_ege_2024-08-15.fst')
+    gene_list_table <- read.fst('./data/morphic_gene_list_table_2024-09-11.fst')
+    plots_df <- read.fst('./data/all_data_ege_2024-09-11.fst')
     panther_df <- read.fst('./data/panther_protein_table.fst')
     hca_expression_df <- read.fst('./data/hca_expression_table.fst')
     go_plots <- readRDS('./data/go_plots.rda')

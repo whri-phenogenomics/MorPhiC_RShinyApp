@@ -17,10 +17,10 @@ ui <- function(id) {
     layout_sidebar(
       # height = '750px',
       sidebar = sidebar(
-        actionButton(ns('info'), 'Table info'),
         uiOutput(ns('sidebar')),
-        downloadButton(ns("download_data"), "Download table"),
-        actionButton(ns('disclaimer'), 'Data disclaimer')
+        actionButton(ns('info'), 'Table info'),
+        downloadButton(ns("download_data"), "Download table")
+        # actionButton(ns('disclaimer'), 'Data disclaimer')
       ),
       DTOutput(ns("gene_list_table")) %>% withSpinner(color="#017176")
     )
@@ -71,13 +71,6 @@ server <- function(id, gene_list_table, gene_lists) {
           accordion_panel(
             title = "Display Options",
             selectInput(
-              session$ns('select_cols'),
-              'Select columns',
-              choices = names(index),
-              multiple = TRUE,
-              selected = names(index)
-            ),
-            selectInput(
               session$ns('select_genes'),
               'Select Gene lists',
               choices = names(gene_lists()),
@@ -89,6 +82,13 @@ server <- function(id, gene_list_table, gene_lists) {
               'Show union or intersection of genes',
               choices = c("Union", "Intersection"),
               selected = "Union"
+            ),
+            selectInput(
+              session$ns('select_cols'),
+              'Select columns',
+              choices = names(index),
+              multiple = TRUE,
+              selected = names(index)
             )
           )
         ),
@@ -237,18 +237,20 @@ server <- function(id, gene_list_table, gene_lists) {
         p('GO Cellular process: cellular process (term and ID) associated with gene. Source: Gene Ontology.'),
         p('HCA Highly expressed tissues: tissues with high expression of associated gene. Source: Human Cell Atlas.'),
         p('GTEX average expression across tissues: GTEx expression averaged across all tissue types. Source: GTEx.'),
-        p('STRING PPIs: Protein-protein interactions associated to gene. Source: STRINGdb.')
-      ))
-    })
-    
-    observeEvent(input$disclaimer, {
-      showModal(modalDialog(
-        title = "Data disclaimer",
-        easyClose = TRUE,
+        p('STRING PPIs: Protein-protein interactions associated to gene. Source: STRINGdb.'),
+        p('Data disclaimer:'),
         p('The information provided in our data is for research purposes only. While we strive to ensure accuracy, we do not guarantee the completeness or correctness of the data. We disclaim any liability for errors, omissions, or any outcomes resulting from the use of this information. Users are advised to verify the data independently.'),
         p('Please note that due to an error in the computation of gene annotations for MGI and Disease gene lethality annotations, any MGI or Disease lethality data downloaded before August 15, 2024, is incorrect.')
       ))
     })
+    
+    # observeEvent(input$disclaimer, {
+    #   showModal(modalDialog(
+    #     title = "Data disclaimer",
+    #     easyClose = TRUE,
+    #     
+    #   ))
+    # })
     
 
 

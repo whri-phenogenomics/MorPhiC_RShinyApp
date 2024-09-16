@@ -45,8 +45,8 @@ goAnalysis <- function(gene_list, background, ontology, pval, qval, percent_slic
   # return(p)
 }
 
-dpc_lists <- readRDS('./data/morphic_gene_lists2024-07-25.rda')
-gene_list_table <- read.fst('./data/morphic_gene_list_table_2024-07-25.fst')
+dpc_lists <- readRDS('./data/morphic_gene_lists2024-09-11.rda')
+gene_list_table <- read.fst('./data/morphic_gene_list_table_2024-09-11.fst')
 gene_lists <- list(
     'JAX' =
       list(
@@ -292,9 +292,9 @@ forestPlot <- function(dat) {
   return(plot)
 }
 
-dpc_lists <- readRDS('./data/morphic_gene_lists2024-07-25.rda')
-gene_list_table <- read.fst('./data/morphic_gene_list_table_2024-07-25.fst')
-plots_df <- read.fst('./data/all_data_ege_2024-07-05.fst')
+dpc_lists <- readRDS('./data/morphic_gene_lists2024-09-11.rda')
+gene_list_table <- read.fst('./data/morphic_gene_list_table_2024-09-11.fst')
+plots_df <- read.fst('./data/all_data_ege_2024-09-11.fst')
 gene_lists <- list(
   'JAX' =
     list(
